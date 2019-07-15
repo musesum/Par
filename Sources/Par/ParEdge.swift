@@ -15,7 +15,7 @@ import Foundation
 
 public class ParEdge {
     
-    var id = -ParNode.nextId()
+    var id = Visitor.nextId()
     
     static let MaxReps = 200
     

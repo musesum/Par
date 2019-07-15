@@ -15,7 +15,7 @@ import Foundation
 
 public class ParAny {
     
-    var id = ParNode.nextId()
+    var id = Visitor.nextId()
     public var node: ParNode? // reference to parse node
     public var value: String? = nil // either a ParAny, [ParAny], or String
     public var next = [ParAny]()

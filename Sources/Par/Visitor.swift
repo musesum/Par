@@ -10,6 +10,9 @@ import Foundation
 
 /// Visit a node only once. Collect and compare with a set of nodes already visited.
 public class Visitor {
+
+    static var Id = 0  // unique identifier for each node
+    static func nextId() -> Int { Id+=1; return Id }
     
     public var visited = Set<Int>()
 

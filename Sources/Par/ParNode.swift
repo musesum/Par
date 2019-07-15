@@ -14,9 +14,8 @@ public typealias ParStrLevel = (_ parStr:ParStr, _ level:Int) -> ParAny?
 /// A node in a parse graph with prefix and suffix edges.
 public class ParNode {
     
-    static var Id = 0  // unique identifier for each node
-    static func nextId() -> Int { Id+=1; return Id }
-    public var id = ParNode.nextId()
+
+    public var id = Visitor.nextId()
 
     /// name, quote, or regex pattern 
     public var pattern = ""
