@@ -12,7 +12,7 @@ import Foundation
 public class Visitor {
 
     static var Id = 0  // unique identifier for each node
-    static func nextId() -> Int { Id+=1; return Id }
+    public static func nextId() -> Int { Id+=1; return Id }
     
     public var visited = Set<Int>()
 
