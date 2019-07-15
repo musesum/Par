@@ -16,6 +16,24 @@ public class Par {
     static var trace2 = false
 
     public var parStr = ParStr()
+
+    public func parse(script: String) -> ParNode! {
+        parStr.str = script
+        parStr.restart()
+        if let parAny = Par.par.findMatch(parStr) {
+
+            let result = parAny.anyStr()
+                .replacingOccurrences(of: "(", with: "(\n")
+                .replacingOccurrences(of: ",", with: ",\n")
+
+            if Par.trace2 { print(result + divider()) }
+
+            if let node = parseParAny(parAny) {
+                return node
+            }
+        }
+        return nil
+    }
     
     public func parse(_ filename: String, _ ext:String) -> ParNode! {
 
