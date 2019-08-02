@@ -12,8 +12,8 @@ import Foundation
 public class Par {
     
     public static let shared = Par()
-    static var trace = false
-    static var trace2 = false
+    public static var trace = false
+    public static var trace2 = false
 
     public var parStr = ParStr()
 
