@@ -3,7 +3,8 @@
 //  Test
 //
 //  Created by warren on 6/22/17.
-//  Copyright © 2017 Muse Dot Company All rights reserved.
+//  Copyright © 2017 Muse Dot Company
+//  License: Apache 2.0 - see License file
 
 import Foundation
 

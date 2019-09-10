@@ -1,0 +1,3 @@
+muse : ask {
+    ask  : "muse" ("please" | "yo")?
+}

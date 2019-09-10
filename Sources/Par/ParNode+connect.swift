@@ -3,11 +3,8 @@
 //  Par
 //
 //  Created by warren on 7/7/17.
-//  Copyright © 2017 Muse Dot Company All rights reserved.
-//
-
-/// @available(iOS 11,*)
-/// @available(watchOS 4,*)
+//  Copyright © 2017 Muse Dot Company
+//  License: Apache 2.0 - see License file
 
 public extension ParNode {
     

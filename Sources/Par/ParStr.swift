@@ -3,13 +3,10 @@
 //  Par
 //
 //  Created by warren on 7/3/17.
-//  Copyright © 2017 Muse Dot Company All rights reserved.
-//
+//  Copyright © 2017 Muse Dot Company
+//  License: Apache 2.0 - see License file
 
 import Foundation
-
-/// @available(iOS 11,*)
-/// @available(watchOS 4,*)
 
 /// Parse a substring `sub` of string `str`
 public class ParStr {
@@ -43,18 +40,16 @@ public class ParStr {
     func restart() {
         sub = str[str.startIndex ..< str.endIndex]
     }
-    func read(_ filename: String, _ ext:String) {
-        if let url = Bundle.main.url(forResource: filename, withExtension: ext) {
-            do {
-                str = try String(contentsOf: url)
-                restart()
-            } catch {
-                print("*** \(#function) error:\(error) loading contents of:\(url)")
-            }
+    public func read(_ filename: String, _ ext:String) -> String {
+
+        let resource = Resource(name: filename, type: ext)
+        do {
+            let resourcePath = resource.path
+            return try String(contentsOfFile: resourcePath) }
+        catch {
+            print("*** ParStr::\(#function) error:\(error) loading contents of:\(resource.path)")
         }
-        else {
-            print("*** \(#function) file:\(filename).\(ext) not found")
-        }
+        return ""
     }
     
     /// advance past spaces

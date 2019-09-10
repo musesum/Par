@@ -2,12 +2,10 @@
 //  Par
 //
 //  Created by warren on 7/28/17.
-//  Copyright © 2017 Muse Dot Company All rights reserved.
+//  Copyright © 2017 Muse Dot Company
+//  License: Apache 2.0 - see License file
 
 import Foundation
-
-/// @available(iOS 11,*)
-/// @available(watchOS 4,*)
 
 /// Parse a sequential set of words
 public class ParWords: ParStr {
