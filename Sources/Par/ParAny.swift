@@ -8,11 +8,11 @@ import Foundation
 
 /// A ParNode pattern plus instance of Any, which may be either a String or [ParAny]
 public class ParAny {
-    
-    var id = Visitor.nextId()
+
     public var node: ParNode? // reference to parse node
-    public var value: String? = nil // either a ParAny, [ParAny], or String
-    public var next = [ParAny]()
+    public var value: String?    // either value or next, not both to support
+    public var nextPars = [ParAny]() // either a String, ParAny, or [ParAny]
+
     public var hops = 0
     var time = TimeInterval(0)
     
@@ -28,26 +28,28 @@ public class ParAny {
     }
 
     init (_ node_  : ParNode!,
-          _ next_ : [ParAny],
+          _ next_  : [ParAny],
           _ hops_  : Int = 0,
           _ time_  : TimeInterval = 0) {
 
         node = node_
-        next = next_
+        nextPars = next_
         hops = hops_
         time = time_
     }
 
-    /// Search a strand of nodeAnys for the last node
-
+   /// Search a strand of nodeAnys for the last node
     func lastNode() -> ParAny! {
-        if let last = next.last {
-            return last.lastNode()
+        for reversePar in nextPars.reversed() {
+            if reversePar.value != nil ||
+                reversePar.nextPars.count > 0 {
+                return reversePar.lastNode()
+            }
         }
         return self
     }
 
-    public func anyStr(flat: Bool=false) -> String {
+    public func makeScript(flat: Bool=false) -> String {
         
         var ret = ""
 
@@ -62,13 +64,13 @@ public class ParAny {
             }
         }
 
-        switch next.count {
+        switch nextPars.count {
         case 0: ret += (value != nil ? value! : "")
-        case 1: ret += next[0].anyStr(flat:flat)
+        case 1: ret += nextPars[0].makeScript(flat:flat)
         default:
             var del = "("
-            for nexti in next {
-                ret += del + nexti.anyStr(flat:flat)
+            for nextPar in nextPars {
+                ret += del + nextPar.makeScript(flat:flat)
                 del = ", "
             }
             ret += ")"
@@ -76,46 +78,48 @@ public class ParAny {
         return ret
     }
 
-    static func printAny(_ any:Any?) {
+    static func printScript(_ any:Any?) {
 
         switch any {
 
         case let parAny as ParAny:
 
-            print(parAny.anyStr(), terminator:" ")
+            print(parAny.makeScript(), terminator:" ")
 
         case let anys as [Any]:
 
             for any in anys {
-                printAny(any)
+                printScript(any)
             }
         default: print(" *** failed ***")
         }
     }
 
     public func getFirstFloat() -> Float {
-        if let value = next.first?.value {
+        if let value = nextPars.first?.value {
             return Float(value) ?? Float.nan
         }
         return Float.nan
     }
 
     public func getFirstValue() -> String? {
-        return next.first?.value 
+        return nextPars.first?.value
     }
-    
+
+    /// Convenience for collecting a tuple of multiple values.
+    /// - note: Used by Tr3Graph.
     public func harvestValues(_ keys:[String]) -> [String] {
         var result = [String]()
-        for nexti in next {
-            if let value = nexti.value {
+        for nextPar in nextPars {
+            if let value = nextPar.value {
                 result.append(value)
             }
-            else if let pattern = nexti.node?.pattern,
+            else if let pattern = nextPar.node?.pattern,
                 keys.contains(pattern) {
 
-                for nextii in nexti.next {
+                for nextPari in nextPar.nextPars {
 
-                    if let value = nextii.value {
+                    if let value = nextPari.value {
                         result.append(value)
                     }
                 }

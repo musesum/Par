@@ -12,10 +12,9 @@ import Foundation
 public class ParStr {
     
     public static var tracing = false
-
-    var str = ""            /// original string
-    var sub = Substring()   /// a substring of str, updated during parse
     public var whitespace = "\t "
+    public var str = ""     // original string
+    var sub = Substring()   // a substring of str, updated during parse
 
     public convenience init(_ str_: String) {
         
@@ -24,10 +23,12 @@ public class ParStr {
         restart() // set sub from str
     }
 
-    func getSnapshot() -> Any! {
+    // may override to get words, so box with Any
+    func getSnapshot() -> Any? {
         return (sub)
     }
-    func putSnapshot(_ any:Any!) {
+     // may override to put words, so box with Any
+    func putSnapshot(_ any: Any?) {
         if let any = any as? Substring {
             sub = any
         }
@@ -40,9 +41,10 @@ public class ParStr {
     func restart() {
         sub = str[str.startIndex ..< str.endIndex]
     }
+    
     public func read(_ filename: String, _ ext:String) -> String {
 
-        let resource = Resource(name: filename, type: ext)
+        let resource = BundleResource(name: filename, type: ext)
         do {
             let resourcePath = resource.path
             return try String(contentsOfFile: resourcePath) }
@@ -51,13 +53,14 @@ public class ParStr {
         }
         return ""
     }
-    
-    /// advance past spaces
-    func advancePastSpaces() {
+
+    /// advance past whitespaces and whatever else
+    func advancePastChars(_ chars:String) {
+
         var count = 0;
         for char in sub {
-            if whitespace.contains(char) { count += 1 }
-            else                         { break }
+            if chars.contains(char) { count += 1 }
+            else                    { break }
         }
         if count > 0 {
             sub = count < sub.count ? sub[ sub.index(sub.startIndex, offsetBy: count) ..< sub.endIndex] : Substring()
@@ -67,107 +70,50 @@ public class ParStr {
     ///
     ///     '^\'([^\']+)\'' // matches inside, advance outside
     ///
-    struct RangeRegx {
-        var matching: Range<String.Index>
-        var advance: Range<String.Index>
-        init(_ matching_:NSRange, _ advance_:NSRange,_ str:String!) {
-            matching = Range(matching_, in:str)!
-            advance = Range(advance_, in:str)!
-        }
-    }
-    /**
-    Match regular expression to beginning of substring
-
-     - parameter regx: compiled regular expression
-     - returns: ranges of inner value and outer match, or nil
-     */
-    func matchRegx(_ regx: NSRegularExpression) -> RangeRegx! {
-        
-        let nsRange = NSRange( sub.startIndex ..< sub.endIndex, in: str)
-        let match = regx.matches(in: str, options:[.anchored], range:nsRange)
-        if match.count == 0 { return nil }
-        switch match[0].numberOfRanges {
-        case 1:  return RangeRegx(match[0].range(at: 0), match[0].range(at: 0), str)
-        default: return RangeRegx(match[0].range(at: 1), match[0].range(at: 0), str)
-        }
-    }
-
-    /// compile a regular expression to be used later, during parse
-    static func compile (_ pattern:String) -> NSRegularExpression! {
-        
-        let options : NSRegularExpression.Options = [
-            //.caseInsensitive,
-            //.allowCommentsAndWhitespace,
-            //.ignoreMetacharacters,
-            //.dotMatchesLineSeparators,
-            .anchorsMatchLines,
-            .useUnixLineSeparators,
-            .useUnicodeWordBoundaries]
-        
-        do { let regx = try NSRegularExpression(pattern: pattern, options:options)
-            return regx
-        }
-        catch {
-            print("*** ParNode(pat::) failed regx:\(pattern)")
-            return nil
-        }
-    }
-
-    /// match a regular expression and advance past match
-    func matchRegx(_ node:ParNode!) -> ParAny! {
-
-        if let regx = node.regx {
-
-            if let rangeRegx = matchRegx(regx) {
-
-                let upperIndex =  rangeRegx.advance.upperBound
-                sub = upperIndex < sub.endIndex ? sub[ upperIndex ..< sub.endIndex ] : Substring()
-
-                advancePastSpaces()
-
-                return ParAny(node,String(str[rangeRegx.matching]))
-            }
-        }
-        return nil
-    }
-
+   
     /// match a quoted string and advance past match
-    func matchQuote(_ node: ParNode!, withEmpty:Bool=false) -> ParAny! {
+    func matchQuote(_ node: ParNode!, withEmpty:Bool=false) -> ParMatching {
 
         let pat = node.pattern
 
-        if pat == "" { return withEmpty ? ParAny(node,"") : nil }
-
-        if pat.count <= sub.count, sub.hasPrefix(pat) {
+        if pat == "" {
+            if withEmpty {
+                return ParMatching( ParAny(node,""), ok: true)
+            }
+        }
+        else if pat.count <= sub.count, sub.hasPrefix(pat) {
 
             sub = pat.count < sub.count
             ? sub[ sub.index(sub.startIndex, offsetBy: pat.count) ..< sub.endIndex]
             : Substring()
 
-            advancePastSpaces()
-            
-            return ParAny(node,pat)
+            advancePastChars(whitespace)
+            return ParMatching(ParAny(node,pat), ok: true)
         }
-        return nil
+        return ParMatching(nil, ok:false)
     }
 
-   /// return result, when parStr.sub matches external function, if it exists
-    func matchMatchStr(_ node:ParNode!) -> ParAny! {
+    /// return result, when parStr.sub matches external function, if it exists
+    func matchMatchStr(_ node:ParNode!) -> ParMatching {
         // closure has already been set, so execute it
         if node.matchStr != nil,
-            let ret = node.matchStr!(sub) {
+            let str = node.matchStr?(sub) {
 
-            sub = ret.count < sub.count
-                ? sub[ sub.index(sub.startIndex, offsetBy: ret.count) ..< sub.endIndex ]
+            sub = str.count < sub.count
+                ? sub[ sub.index(sub.startIndex, offsetBy: str.count) ..< sub.endIndex ]
                 : Substring()
-            advancePastSpaces()
-            return ParAny(node,ret)
+            advancePastChars(whitespace+"()")
+            return ParMatching(ParAny(node,str),ok: true)
         }
             // closure has not been set, so test name match
-        else if let ret = matchQuote(node) {
-            return ParAny(node,[ret])
+        else {
+            let matching = matchQuote(node)
+            if matching.ok {
+                advancePastChars(whitespace+"()")
+                return matching
+            }
         }
-        return nil
+        return ParMatching(nil, ok: false)
     }
 
     static func makeSlice(_ sub: Substring, del:String = "⦙", length:Int = 10) -> String {
@@ -184,21 +130,91 @@ public class ParStr {
                 .padding(toLength:length, withPad: " ", startingAt: 0) + del + " "
         }
     }
+    // ----------------------------------------
+
+    struct RangeRegx {
+        var matching: Range<String.Index>
+        var advance: Range<String.Index>
+        init(_ matching_:NSRange, _ advance_:NSRange,_ str:String!) {
+            matching = Range(matching_, in:str)!
+            advance = Range(advance_, in:str)!
+        }
+    }
+    /**
+     Match regular expression to beginning of substring
+
+     - parameter regx: compiled regular expression
+     - returns: ranges of inner value and outer match, or nil
+     */
+    func matchRegx(_ regx: NSRegularExpression) -> RangeRegx! {
+
+        let nsRange = NSRange( sub.startIndex ..< sub.endIndex, in: str)
+        let match = regx.matches(in: str, options:[.anchored], range:nsRange)
+        if match.count == 0 { return nil }
+        switch match[0].numberOfRanges {
+        case 1:  return RangeRegx(match[0].range(at: 0), match[0].range(at: 0), str)
+        default: return RangeRegx(match[0].range(at: 1), match[0].range(at: 0), str)
+        }
+    }
+
+    /// compile a regular expression to be used later, during parse
+    static func compile (_ pattern:String) -> NSRegularExpression! {
+
+        let options : NSRegularExpression.Options = [
+            //.caseInsensitive,
+            //.allowCommentsAndWhitespace,
+            //.ignoreMetacharacters,
+            //.dotMatchesLineSeparators,
+            .anchorsMatchLines,
+            .useUnixLineSeparators,
+            .useUnicodeWordBoundaries]
+
+        do { let regx = try NSRegularExpression(pattern: pattern, options:options)
+            return regx
+        }
+        catch {
+            print("*** ParNode(pat::) failed regx:\(pattern)")
+            return nil
+        }
+    }
+
+    /// match a regular expression and advance past match
+    func matchRegx(_ node: ParNode) -> ParMatching {
+
+        if  let regx = node.regx,
+            let rangeRegx = matchRegx(regx) {
+
+            let upperIndex =  rangeRegx.advance.upperBound
+
+            sub = upperIndex < sub.endIndex
+                ? sub[upperIndex ..< sub.endIndex]
+                : Substring()
+
+            advancePastChars(whitespace)
+
+            let result = String(str[rangeRegx.matching])
+            let parAny = ParAny(node,result)
+            return ParMatching(parAny,ok:true)
+        }
+        return ParMatching(nil, ok: false)
+    }
     
-    func trace(_ node:ParNode!, _ parAny:ParAny!, _ level:Int) {
+    func trace(_ node:ParNode!, _ any:Any?, _ level:Int) {
 
         // ignore if not tracing
         if !ParStr.tracing { return }
 
-        // indent predecessors based on level
-        let pad = " ".padding(toLength: level*2, withPad: " ", startingAt: 0)
-
         // add a value if there is one
-        let val = parAny?.value?.replacingOccurrences(of: "\n", with: "") ?? ""
-        print(ParStr.makeSlice(sub) + pad + node.pattern + ".\(node.id) \(node.reps.makeScript()) \(val)")
-        if node.id == 2832 {
-            print("****")
+        if let parAny = any as? ParAny,
+            let parValue = parAny.value {
+            // indent predecessors based on level
+            let pad = " ".padding(toLength: level*2, withPad: " ", startingAt: 0)
+            let slice = ParStr.makeSlice(sub) + pad
+            let reps = node.reps.makeScript()
+            let val = parValue.replacingOccurrences(of: "\n", with: "")
+            print( slice + node.pattern + ".\(node.id) \(reps) \(val)")
         }
     }
+
 }
 

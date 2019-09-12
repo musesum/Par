@@ -11,18 +11,19 @@ import Foundation
 public extension ParNode {
 
     /// return first of alternate choices (boolean or)
-    func testOr(_ parStr:ParStr, level:Int) -> ParAny! {
+    func testOr(_ parStr:ParStr, level:Int) -> ParMatching {
 
         let matching = ParMatching()
-        let snap = parStr.getSnapshot()
 
-        for suf in suffixs {
+        let snapshot = parStr.getSnapshot() // save start position
 
-            parStr.putSnapshot(snap)
+        for edgeNext in edgeNexts {
 
-            if let parAny = suf.next.findMatch(parStr, level) {
+            parStr.putSnapshot(snapshot) // return to start position
+
+            if let parAny = edgeNext.nodeNext.findMatch(parStr, level).parLast {
                 if parAny.hops == 0 {
-                    return parAny
+                    return ParMatching(parAny,ok:true)
                 }
                 else {
                     matching.add(parAny)
@@ -41,42 +42,40 @@ public extension ParNode {
     ///
     ///     a: b c { b:"bb", c:"cc" }
     ///
-    func testAnd(_ parStr:ParStr, level:Int) -> ParAny! {
+    func testAnd(_ parStr:ParStr, level:Int) -> ParMatching {
+
         let matching = ParMatching()
-        for suf in suffixs {
-            if let next = suf.next {
+
+        for edgeNext in edgeNexts {
+
+            if let nodeNext = edgeNext.nodeNext {
                 // skip namespace
-                if next.parOp == .def {
+                if nodeNext.parOp == .def {
                     continue
                 }
-                if let parAny = next.findMatch(parStr, level) {
-                    matching.add(parAny)
+                if matching.add(nodeNext.findMatch(parStr, level)) {
                     continue
                 }
             }
-            return nil
+            return ParMatching(nil, ok: false)
         }
-        let reduced = matching.reduce(self)
-        return reduced
+        matching.ok = true
+        return matching.reduceFound(self)
     }
 
     /// return result, when parStr.sub matches external function, if it exists
-    func testMatch(_ parStr:ParStr, level:Int) -> ParAny! {
-        let result =  parStr.matchMatchStr(self)
-        return result
+    func testMatch(_ parStr:ParStr, level:Int) -> ParMatching {
+        return parStr.matchMatchStr(self)
     }
 
     /// return empty parAny, when parStr.sub matches pattern
-    func testQuo(_ parStr:ParStr, level:Int) -> ParAny! {
-        let result =  parStr.matchQuote(self)
-
-        return result
+    func testQuo(_ parStr:ParStr, level:Int) -> ParMatching {
+        return parStr.matchQuote(self)
     }
 
-    /// return result, when parStr.sub matches regular expression in pattern */
-    func testRegx(_ parStr:ParStr, level:Int) -> ParAny! {
-        let result = parStr.matchRegx(self)
-        return result
+    /// return result, when parStr.sub matches regular expression in pattern
+    func testRegx(_ parStr:ParStr, level:Int) -> ParMatching {
+        return parStr.matchRegx(self)
     }
 
     /// Repeat closure based on repetion range range and closure's result
@@ -88,29 +87,22 @@ public extension ParNode {
     ///
     internal func forRepeat(_ parStr:ParStr,
                             _ level: Int,
-                            _ parStrLevel:ParStrLevel) -> ParAny! {
+                            _ parStrMatch:ParStrMatch) -> ParMatching {
 
-        var count = 0
         let matching = ParMatching()
 
         for _ in 0 ..< reps.repMax {
             // matched, so add
-            if let parAny = parStrLevel(parStr,level) {
-                matching.add(parAny)
+            if  matching.add(parStrMatch(parStr,level)) {
+                matching.count += 1
+                continue // to next repeat
             }
-                // unmatched, fail minimum, so false
-            else if count < reps.repMin {
-                return nil
-            }
-                // unmatched, but met minimum, so true
-            else {
-                break
-            }
-            count += 1 
+            break // unmatched, fail minimum, so false
         }
-        // met both minimum and maximum
-        let reduced = matching.reduce(self,isName)
-        return reduced
+        matching.ok = (matching.count >= reps.repMin &&
+            /**/       matching.count <= reps.repMax)
+
+        return matching.reduceFound(self,isName)
     }
 
     /// Search for pattern matches in substring with by transversing graph of nodes, with behavior:
@@ -124,53 +116,52 @@ public extension ParNode {
     /// - Parameter parStr: sub(string) of input to match
     /// - Parameter level: depth within graph search
     ///
-    func findMatch(_ parStr: ParStr,_ level:Int=0) -> ParAny! {
+    func findMatch(_ parStr: ParStr,_ level:Int=0) -> ParMatching {
 
-        let snap = parStr.getSnapshot()
-        var parAny: ParAny!
+        let snapshot = parStr.getSnapshot() // push
+        var matching = ParMatching()
 
-        parStr.trace(self, parAny, level)
+        parStr.trace(self, nil, level)
 
         switch parOp {
         case .def,
-             .and:   parAny = forRepeat(parStr,level,testAnd)
-        case .or:    parAny = forRepeat(parStr,level,testOr)
-        case .quo:   parAny = forRepeat(parStr,level,testQuo)
-        case .rgx:   parAny = forRepeat(parStr,level,testRegx)
-        case .match: parAny = forRepeat(parStr,level,testMatch)
+             .and:   matching = forRepeat(parStr,level,testAnd)
+        case .or:    matching = forRepeat(parStr,level,testOr)
+        case .quo:   matching = forRepeat(parStr,level,testQuo)
+        case .rgx:   matching = forRepeat(parStr,level,testRegx)
+        case .match: matching = forRepeat(parStr,level,testMatch)
         }
 
-        if let parAny = parAny {
+        if let parAny = matching.parLast {
             foundCall?(parAny)
             parStr.trace(self,parAny,level)
         }
         else {
-            parStr.putSnapshot(snap)
+            parStr.putSnapshot(snapshot) // pop
         }
-        return parAny
+        return matching
     }
 
     /// Path must match all node names, ignores and/or/cardinals
     /// - parameter parStr: space delimited sequence of
-    func findPath(_ parStr: ParStr) -> ParNode! {
+    func findPath(_ parStr: ParStr) -> ParNode? {
 
-        var val:String!
+        var val: String?
+
         switch parOp {
-        case .rgx: val = parStr.matchRegx(self)?.value ?? nil
-        case .quo: val = parStr.matchQuote(self, withEmpty: true)?.value ?? nil
+        case .rgx: val = parStr.matchRegx(self).value
+        case .quo: val = parStr.matchQuote(self, withEmpty: true).value
         default:   val = ""
         }
 
         if let _ = val {
-            //print("\(nodeStrId()):\(val) ", terminator:"")
 
             if parStr.isEmpty() {
                 return self
             }
-            for suf in suffixs {
-                let ret = suf.next.findPath(parStr)
-                if ret != nil {
-                    return ret
+            for edgeNext in edgeNexts {
+                if let parNode = edgeNext.nodeNext.findPath(parStr) {
+                    return parNode
                 }
             }
             return self

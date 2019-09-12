@@ -7,7 +7,7 @@ muse : ask (show | hide | setting | clear) {
 
     type : 'all'? ('alarms' | 'marks' | events | memos) match? {
 
-        events : 'event' events()
+        events : 'event' eventList()
         memos  : 'memos' memos()
         match  : ('with' 'keyword' | 'matching')+ matches()
     }

@@ -23,19 +23,19 @@ public extension ParNode {
             if [.def,.and,.or].contains(parOp),
                 pattern.count > 0,
                 pattern == name,
-                suffixs.count > 0 {
+                edgeNexts.count > 0 {
                 
                 return self
             }
             // check for siblings which haven't been visited
-            for suf in suffixs {
-                if let node = suf.next.findLeft(name, visitor) {
+            for edgeNext in edgeNexts {
+                if let node = edgeNext.nodeNext.findLeft(name, visitor) {
                     return node
                 }
             }
             // check for aunts/uncles which haven't been visited
-            for pre in prefixs {
-                if let node = pre.prev.findLeft(name, visitor) {
+            for edgePrev in edgePrevs {
+                if let node = edgePrev.nodePrev.findLeft(name, visitor) {
                     return node
                 }
             }
@@ -58,7 +58,7 @@ public extension ParNode {
         func nameRefersToDefinitionElsewhere() -> Bool {
             if  [.def,.and,.or].contains(parOp), // is not a leaf
                 pattern.count > 0, // is an explicitly declared node
-                suffixs.count == 0    // has no suffixes, so elsewhere
+                edgeNexts.count == 0    // has no suffixes, so elsewhere
             {
                 return true
             }
@@ -71,14 +71,14 @@ public extension ParNode {
             // new vistor for search
             let findVisitor = Visitor(id)
 
-            for pre in prefixs {
+            for edgePrev in edgePrevs {
                 // found a node
-                if let node = pre.prev.findLeft(pattern, findVisitor) {
-                    if node.isName, !(node.reps == pre.next.reps) {
-                        pre.next.graft(node)
+                if let node = edgePrev.nodePrev.findLeft(pattern, findVisitor) {
+                    if node.isName, !(node.reps == edgePrev.nodeNext.reps) {
+                        edgePrev.nodeNext.graft(node)
                         return
                     }
-                    pre.next = node
+                    edgePrev.nodeNext = node
                     return
                 }
             }
@@ -90,8 +90,8 @@ public extension ParNode {
         if nameRefersToDefinitionElsewhere() {
             findAndSubstituteEdges()
         }
-        for suf in suffixs {
-            suf.next.connectReferences(visitor)
+        for edgeNext in edgeNexts {
+            edgeNext.nodeNext.connectReferences(visitor)
         }
     }
     
@@ -119,7 +119,7 @@ public extension ParNode {
             if next.parOp == parOp &&
                 next.reps.repMax == reps.repMax &&
                 next.reps.repMin == reps.repMin &&
-                next.prefixs.count == 1 {
+                next.edgePrevs.count == 1 {
                 return true
             }
             else {
@@ -135,40 +135,40 @@ public extension ParNode {
             
             var newSuffixs = [ParEdge]()
             
-            for suf in suffixs {
+            for edgeNext in edgeNexts {
                 
-                if let next = suf.next,
-                    isSelfRecursive(next) {
+                if let nodeNext = edgeNext.nodeNext,
+                    isSelfRecursive(nodeNext) {
                     
-                    next.distillSuffixs(visitor)
+                    nodeNext.distillSuffixs(visitor)
                     
-                    for suf2 in next.suffixs {
-                        suf2.prev = self
-                        newSuffixs.append(suf2)
+                    for edgeNext2 in nodeNext.edgeNexts {
+                        edgeNext2.nodePrev = self
+                        newSuffixs.append(edgeNext2)
                     }
                 }
                 else {
-                    newSuffixs.append(suf)
+                    newSuffixs.append(edgeNext)
                 }
             }
-            suffixs = newSuffixs
+            edgeNexts = newSuffixs
         }
         
         /// deja vu? if already been here, then skip
         if !visitor.newVisit(id) { return }
   
         if [.or].contains(parOp),
-            suffixs.count > 0 {
+            edgeNexts.count > 0 {
             
-            for suf in suffixs {
-                if isSelfRecursive(suf.next) {
+            for edgeNext in edgeNexts {
+                if isSelfRecursive(edgeNext.nodeNext) {
                     distill()
                     break
                 }
             }
         }
-        for suf in suffixs {
-            suf.next.distillSuffixs(visitor)
+        for edgeNext in edgeNexts {
+            edgeNext.nodeNext.distillSuffixs(visitor)
         }
     }
     

@@ -1,3 +1,4 @@
+// this is not parsed, describes Par.par
 par+ : name reps ":" right sub _end {
 
     name  : '^[A-Za-z_]\w*'

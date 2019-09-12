@@ -8,27 +8,21 @@
 
 import Foundation
 
-/// @available(iOS 11,*)
-/// @available(watchOS 4,*)
-
 /// An ParEdge connects and is shrared by two nodes
-
 public class ParEdge {
-    
-    var id = Visitor.nextId()
     
     static let MaxReps = 200
     
-    var prev: ParNode!  // prefix
-    var next: ParNode!  // suffix
+    var nodePrev: ParNode!  // edge predecessor
+    var nodeNext: ParNode!  // edge successor
     
-    init(_ pre: ParNode!, _ suf: ParNode!) {
+    init(_ nodePrev_: ParNode!, _ nodeNext_: ParNode?) {
         
-        prev = pre
-        next = suf
+        nodePrev = nodePrev_
+        nodeNext = nodeNext_
         
-        prev.suffixs.append(self)
-        next.prefixs.append(self)
+        nodePrev.edgeNexts.append(self)
+        nodeNext.edgePrevs.append(self)
     }
 }
 

@@ -1,6 +1,4 @@
 //  ParWords.swift
-//  Par
-//
 //  Created by warren on 7/28/17.
 //  Copyright © 2017 Muse Dot Company
 //  License: Apache 2.0 - see License file
@@ -10,7 +8,7 @@ import Foundation
 /// Parse a sequential set of words
 public class ParWords: ParStr {
 
-    var recents = ParRecents()
+    var recents = ParMatchNow()
     var words : [Substring]!
     var found : [Int]! // index of found
     var starti = 0 // where to start searching
@@ -35,8 +33,8 @@ public class ParWords: ParStr {
         recents.forget(time)
     }
 
-    /// Snapshot of current ParWords state. To all parser to push and pop state.
-    struct ParSetSnap {
+    /// Substring of current ParWords state. To all parser to push and pop state.
+    struct ParSnapshot {
         var sub: Substring
         var count: Int
         var starti: Int
@@ -50,15 +48,15 @@ public class ParWords: ParStr {
     }
 
     override func getSnapshot() -> Any! {
-        return ParSetSnap(self)
+        return ParSnapshot(self)
     }
 
     override func putSnapshot(_ any:Any!) {
-        if let snap = any as? ParSetSnap {
-            sub = snap.sub
-            count = snap.count
-            starti = snap.starti
-            let trim = found.count - snap.foundi
+        if let snapshot = any as? ParSnapshot {
+            sub = snapshot.sub
+            count = snapshot.count
+            starti = snapshot.starti
+            let trim = found.count - snapshot.foundi
             if trim > 0 {
                 found.removeLast(trim)
             }
@@ -69,38 +67,37 @@ public class ParWords: ParStr {
         return sub.isEmpty
     }
 
-    /** Minimun number of hops `min(<,^,v)` from expected, which is based on proximity to:
-         < sequ(ence) position,
-         ^ prev(ious) match,
-         v next match.
-     For example, when expecting `"muse show event yo"`:
-
-     "muse show event yo"  ⟹ 
-     //   min(<,^,v)   => hops
-     0,0: min(0,.,0) += 0 => 0
-     1,1: min(0,0,0) += 0 => 0
-     2,2: min(0,0,0) += 0 => 0
-     3,3: min(0,0,.) += 0 => 0
-
-     "muse event show yo"  ⟹ 
-      //   min(<,^,v)  => hops
-     0,0: min(0,.,1) += 0 => 0
-     1,2: min(1,1,2) += 1 => 1
-     2,1: min(1,2,1) += 1 => 2
-     3,3: min(0,1,.) += 0 => 2
-
-     "yo muse show event"  ⟹ 
-     //   min(<,^,v)   => hops
-     0,1: min(1,.,0) += 0 => 0
-     1,2: min(1,0,0) += 0 => 0
-     2,3: min(1,0,4) += 0 => 0
-     3,0: min(3,4,.) += 3 => 3
-
-     "muse show yo event"  ⟹  hops:2
-     "muse event yo show"  ⟹  hops:2
-     */
-
+   /// Minimun number of hops `min(<,^,v)` from expected, which is based on proximity to:
+   ///            < sequ(ence) position,
+   ///            ^ prev(ious) match,
+   ///            v next match.
+   ///  For example, when expecting `"muse show event yo"`:
+   ///
+   ///        "muse show event yo"  ⟹
+   ///        //   min(<,^,v)   => hops
+   ///        0,0: min(0,.,0) += 0 => 0
+   ///        1,1: min(0,0,0) += 0 => 0
+   ///        2,2: min(0,0,0) += 0 => 0
+   ///        3,3: min(0,0,.) += 0 => 0
+   ///
+   ///        "muse event show yo"  ⟹
+   ///         //   min(<,^,v)  => hops
+   ///        0,0: min(0,.,1) += 0 => 0
+   ///        1,2: min(1,1,2) += 1 => 1
+   ///        2,1: min(1,2,1) += 1 => 2
+   ///        3,3: min(0,1,.) += 0 => 2
+   ///
+   ///        "yo muse show event"  ⟹
+   ///        //   min(<,^,v)   => hops
+   ///        0,1: min(1,.,0) += 0 => 0
+   ///        1,2: min(1,0,0) += 0 => 0
+   ///        2,3: min(1,0,4) += 0 => 0
+   ///        3,0: min(3,4,.) += 3 => 3
+   ///
+   ///        "muse show yo event"  ⟹  hops:2
+   ///        "muse event yo show"  ⟹  hops:2
     public func totalHops(trace:Bool = false) -> Int {
+
         if trace { print("\n//   min(<,^,v)   => hops") }
         var total = 0
         let count = words.count
@@ -123,10 +120,10 @@ public class ParWords: ParStr {
 
     /// Advance past match and return parAny with number of hops from normal sequence.
     /// - note: extension of ParStr, for a set of words match in parallel. Only use on a short phrase.
-    func advancePar(_ node:ParNode!, _ index:Int, _ str: String!,_ deltaTime:TimeInterval = 0) -> ParAny! {
+    func advancePar(_ node:ParNode!, _ index:Int, _ str: String!,_ deltaTime:TimeInterval = 0) -> ParAny? {
 
         /// matching a recent query is treated as a last resort, which is insured by adding cuttoff time for short term memory
-        let penaltyHops = deltaTime > 0 ? Int(deltaTime + ParRecents.shortTermMemory) : 0
+        let penaltyHops = deltaTime > 0 ? Int(deltaTime + ParMatchNow.shortTermMemory) : 0
 
         // add from recent or has extra matches, so extend found
         if deltaTime > 0 || count >= found.count {
@@ -160,7 +157,7 @@ public class ParWords: ParStr {
 
     /// match a quoted string and advance past match
     /// - note: extension of ParStr, for a set of words match in parallel. Only use on a short phrase.
-    override func matchMatchStr(_ node:ParNode!) -> ParAny! {
+    override func matchMatchStr(_ node:ParNode!) -> ParMatching {
 
         func match(_ i: Int) -> String! {
             let word = words[i]
@@ -170,8 +167,9 @@ public class ParWords: ParStr {
         // search forward from last match
         if starti < words.count {
             for index in starti ..< words.count {
-                if let ret = match(index) {
-                    return advancePar(node,index,ret)
+                if let str = match(index) {
+                    let parAny = advancePar(node,index,str) //???
+                    return ParMatching(parAny, ok: true)
                 }
             }
         }
@@ -179,31 +177,33 @@ public class ParWords: ParStr {
         // continue search from leftovers
         if starti > 0 {
             for index in (0 ..< starti).reversed() {
-                if let ret = match(index) {
-                    return advancePar(node,index,ret)
+                if let str = match(index) {
+                    let parAny = advancePar(node,index,str)
+                    return ParMatching(parAny, ok: true)
                 }
             }
         }
         // test non optional recents
-        if recents.array.count > 0,
+        if recents.parAnys.count > 0,
           node.reps.repMin >= 1 {
 
-            for parAny in recents.array.reversed() {
+            for parAny in recents.parAnys.reversed() {
                 if  let id = parAny.node?.id, id == node.id,
                     let word = parAny.value {
 
                     let deltaTime = time - parAny.time
-                    return advancePar(node, words.count, word, deltaTime)
+                    let parAny = advancePar(node, words.count, word, deltaTime)
+                    return ParMatching(parAny, ok: true)
                 }
             }
         }
-        return nil
+        return ParMatching(nil, ok: false)
     }
 
 
     /// match a quoted string and advance past match
     /// - note: extension of ParStr, for a set of words match in parallel. Only use on a short phrase.
-    override func matchQuote(_ node:ParNode!, withEmpty:Bool=false) -> ParAny! {
+    override func matchQuote(_ node:ParNode!, withEmpty:Bool=false) -> ParMatching {
 
         func match(_ i: Int) -> Bool {
             let word = words[i]
@@ -217,13 +217,17 @@ public class ParWords: ParStr {
         }
 
         // for an empty value, maybe return true
-        if node.pattern == "" { return withEmpty ? ParAny(node,"") : nil }
+        if node.pattern == "" {
 
+            if withEmpty { return ParMatching(ParAny(node,""),ok: true) }
+            else         { return ParMatching(nil, ok: false) }
+        }
         // search forward from last match
         if starti < words.count {
             for index in starti ..< words.count {
                 if match(index) {
-                    return advancePar(node,index,node.pattern)
+                    let parAny = advancePar(node,index,node.pattern)
+                    return ParMatching(parAny,ok:true)
                 }
             }
         }
@@ -232,24 +236,26 @@ public class ParWords: ParStr {
         if starti > 0 {
             for  index in (0 ..< starti).reversed()  {
                 if match(index) {
-                    return advancePar(node,index,node.pattern)
+                    let parAny = advancePar(node,index,node.pattern)
+                    return ParMatching(parAny,ok: true)
                 }
             }
         }
 
         // test non optional recents
-        if recents.array.count > 0,
+        if recents.parAnys.count > 0,
            node.reps.repMin >= 1 {
 
-            for parAny in recents.array.reversed() {
+            for parAny in recents.parAnys.reversed() {
                 if  let id = parAny.node?.id, id == node.id {
 
                     let deltaTime = time - parAny.time
-                    return advancePar(node, words.count, node.pattern, deltaTime)
+                    let parAny = advancePar(node, words.count, node.pattern, deltaTime)
+                    return ParMatching(parAny,ok: true)
                 }
             }
         }
-        return nil
+        return ParMatching(nil, ok: false)
     }
 
     /// Match regular expression to beginning of substring
@@ -269,7 +275,7 @@ public class ParWords: ParStr {
     /// Match regular expression to word
     /// - parameter regx: compiled regular expression
     /// - returns: ranges of inner value and outer match, or nil
-    func matchRegxWord(_ regx: NSRegularExpression, _ word: String) -> RangeRegx! {
+    func matchRegxWord(_ regx: NSRegularExpression, _ word: String) -> RangeRegx? {
 
         let nsRange = NSRange( word.startIndex ..< word.endIndex, in: word)
         let match = regx.matches(in: word, options:[], range:nsRange)
@@ -282,13 +288,16 @@ public class ParWords: ParStr {
 
     /// Nearest match a regular expression and advance past match
     /// - note: extension of ParStr, for a set of words match in parallel. Only use on a short phrase.
-    override func matchRegx(_ node:ParNode!) -> ParAny! {
+    override func matchRegx(_ node: ParNode) -> ParMatching {
 
-        if node!.regx == nil { return nil }
+        if node.regx == nil {
+            return ParMatching(nil, ok: false)
+        }
 
-        func match(_ i: Int) -> String! {
+        func match(_ i: Int) -> String? {
             let word = words[i]
-            if let rangeRegx = matchRegxWord(node!.regx!,word) {
+            if  let regx = node.regx,
+                let rangeRegx = matchRegxWord(regx,word) {
                 let result = String(str[rangeRegx.matching])
                 return result
             }
@@ -297,11 +306,15 @@ public class ParWords: ParStr {
             }
         }
 
+        // begin -----------------------------------------
+
         // search forward from last match
         if starti < words.count {
             for index in starti ..< words.count {
                 if let word = match(index) {
-                    return advancePar(node,index,word)
+                
+                    let parAny = advancePar(node,index,word)
+                    return ParMatching(parAny, ok: true)
                 }
             }
         }
@@ -310,25 +323,29 @@ public class ParWords: ParStr {
         if starti > 0 {
             for  index in (0 ..< starti).reversed()  {
                 if let word = match(index) {
-                    return advancePar(node,index,word)
+
+                    let parAny = advancePar(node,index,word)
+                    return ParMatching(parAny, ok: true)
                 }
             }
         }
         // test non optional recents
-        if recents.array.count > 0,
+        if recents.parAnys.count > 0,
             node.reps.repMin >= 1 {
 
-            for parAny in recents.array.reversed() {
+            for parAny in recents.parAnys.reversed() {
                 if  let id = parAny.node?.id, id == node.id,
                     let word = parAny.value,
-                    let _ = matchRegxWord(node!.regx!,word) {
+                    let regx = node.regx,
+                    let _ = matchRegxWord(regx,word) {
 
                     let deltaTime = time - parAny.time
-                    return advancePar(node, words.count, word, deltaTime)
+                    let parAny = advancePar(node, words.count, word, deltaTime)
+                    return ParMatching(parAny, ok: true)
                 }
             }
         }
-        return nil
+        return ParMatching(nil, ok: false)
     }
 
 }

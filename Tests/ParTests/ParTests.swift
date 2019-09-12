@@ -3,65 +3,85 @@ import XCTest
 
 @testable import Par
 
-// test
-func matches(_ str:Substring) -> String! {
-    return str.hasPrefix("yo") ? "yo" : nil
-}
-
 final class ParTests: XCTestCase {
 
-    var countTotal = 0
-    var countError = 0
+    var errorCount = 0
 
-    /// test ParGraph for parsing different languages
+    /// compare expected with actual result and print error strings
+    /// with 🚫 marker at beginning of non-matching section
     ///
-    /// - Test1     - rudimentary cardinality within sub-namespace
-    /// - Tr3       - complete definition of Tr3 language
-    /// - MuseNow   - a simple natural language command recognizer
+    /// - parameter script: expected output
+    /// - parameter script: actual output
+    ///
+    func testCompare(_ expected:String, _ actual:String, echo:Bool = false) {
+        if echo {
+            print ("⟹ " + expected, terminator:"")
+        }
+        // for non-match, compare will insert a 🚫 into expectedErr and actualErr
+        if let (expectedErr,actualErr) = ParStr.compare(expected, actual) {
+            print (" 🚫 mismatch")
+            print ("⟹ " + expectedErr)
+            print ("⟹ " + actualErr + "\n")
+            errorCount += 1
+        }
+        else {
+            print ("⟹ " + expected + " ✓\n")
+        }
+    }
 
-    public func TestParGraph(_ filename: String) {
+
+      public func test(_ script: (String,String)) {
 
         Par.trace = false // for debugging error
         Par.trace2 = false
+        ParStr.tracing = false
 
-        let _ /*border*/ = "┄".padding(toLength: 40, withPad: "┄", startingAt: 0)
+        // script contains original to parse and expected result of parse
+        var (original,expected) = script
+        if expected == "" { expected = original }
 
-        if let graph = Par.shared.parse(filename, "par") {
+        if let graph = Par.shared.parse(script:original) {
 
-            //graph.printGraph(Visitor(0));            print(divider(15))
-            let script = graph.makeScript(level:0);  print(divider(15))
-            //print(script)
+           // graph.printGraph(Visitor(0))
 
-            if let error = Par.shared.parStr.compare(script) {
-                print ("\(#function) \(filename): 🚫 mismatch \n\(error)")
-                countError += 1
-            }
-            else {
-                print ("\(#function) \(filename): ✓")
-            }
+            let actual = graph.makeScript(level:0)
+            testCompare(expected, actual)
         }
         else {
-            countError += 1
+            print(" 🚫 failed parse")
+            errorCount += 1
         }
         print(divider(30))
     }
 
+    /// test basic parsing by comparing with generated output
     func testBasics() {
-        countError = 0
-        TestParGraph("Test1")
-        TestParGraph("Test2a")
-        TestParGraph("Test2b")
-        TestParGraph("Test3")
-        
-        TestParGraph("Tr3")
-        TestParGraph("MuseNow")
-        TestParGraph("Muse")
-        XCTAssertEqual(countError,0)
+        errorCount = 0
 
+        // test(Bug1Par) 🚫bug! single rvalue `ask`
+        // test(Bug2Par) 🚫bug! double ((...) ...)
+
+        test(Namespace1Par)
+        test(Namespace2Par)
+        test(CardinalPar)
+        test(MultiGroupPar)
+        test(MusePar)
+        test(RoutinePar)
+        test(MediaPar)
+
+        XCTAssertEqual(errorCount,0)
     }
+    /// test natural language processing with shifting order
+    func testNLP() {
 
+        let muse = Muse()
+        errorCount = muse.testScript()
+    
+        XCTAssertEqual(errorCount,0)
+    }
 
     static var allTests = [
         ("testBasics", testBasics),
+        ("testNLP", testNLP),
     ]
 }

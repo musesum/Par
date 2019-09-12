@@ -17,22 +17,22 @@ public extension ParNode {
         visitor.visited.insert(id)
         
         var left = "⦙ " + " ".padding(toLength: level, withPad: " ", startingAt: 0)
-        for pre in prefixs {
-            left += pre.prev.nodeOpId() + " "
+        for edgePrev in edgePrevs {
+            left += edgePrev.nodePrev.nodeOpId() + " "
         }
         left = left.padding(toLength: 32, withPad: " ", startingAt: 0)
 
         let center = (nodeOpId()+" ").padding(toLength: 24, withPad: " ", startingAt: 0)
         
         var right = ""
-        for suf in suffixs {
-            right += suf.next.nodeOpId() + " "
+        for edgeNext in edgeNexts {
+            right += edgeNext.nodeNext.nodeOpId() + " "
         }
         
         print (left + center + right)
         
-        for suf in suffixs {
-            suf.next.printGraph(visitor, level+1)
+        for edgeNext in edgeNexts {
+            edgeNext.nodeNext.printGraph(visitor, level+1)
         }
     }
     
@@ -85,7 +85,7 @@ public extension ParNode {
     ///
     func makeSuffixs(_ level:Int) -> String {
 
-        /// And suffixs
+        /// And edgeNexts
         func makeAnd(_ next:ParNode!) -> String {
             
             if next.isName {
@@ -95,16 +95,16 @@ public extension ParNode {
             var str = "" // return value
             let dels = next.reps.count == .one ? ["", " ", ""] : ["(", " ", ")"]
             var del = dels[0]
-            for nextSuffix in next.suffixs {
+            for nextSuffix in next.edgeNexts {
 
                 str += del
                 
-                if let next2 = nextSuffix.next {
+                if let nodeNext2 = nextSuffix.nodeNext {
                     // As of xcode 9 beta 3, 
-                    if      next2.parOp == .or    { str += makeOr(next2) }
-                    else if next2.parOp == .and   { str += makeAnd(next2) }
-                    else if next2.parOp == .match { str += next2.makeScript(level:level) + "()" }
-                    else                          { str += next2.makeScript(level:level+1) }
+                    if      nodeNext2.parOp == .or    { str += makeOr(nodeNext2) }
+                    else if nodeNext2.parOp == .and   { str += makeAnd(nodeNext2) }
+                    else if nodeNext2.parOp == .match { str += nodeNext2.makeScript(level:level) + "()" }
+                    else                          { str += nodeNext2.makeScript(level:level+1) }
                 }
                 del = dels[1]
             }
@@ -118,14 +118,14 @@ public extension ParNode {
             var str = "" // return value
             let dels = inner ? ["", " | ", ""] :  [" (", " | ", ")"]
             var del = dels[0]
-            for suf2 in next.suffixs {
+            for next2 in next.edgeNexts {
                 
                 str += del
                 
-                if let suf2Node = suf2.next {
-                    if      suf2Node.parOp == .and { str += makeAnd(suf2Node) }
-                    else if suf2Node.parOp == .or  { str += makeOr(suf2Node, inner:true) }
-                    else                           { str += suf2Node.makeScript(level:level+1) }
+                if let next2Node = next2.nodeNext {
+                    if      next2Node.parOp == .and { str += makeAnd(next2Node) }
+                    else if next2Node.parOp == .or  { str += makeOr(next2Node, inner:true) }
+                    else                           { str += next2Node.makeScript(level:level+1) }
                 }
                 del = dels[1]
             }
@@ -137,8 +137,8 @@ public extension ParNode {
         func makeDef(_ next:ParNode!) -> String {
             
             var str = " {\n" // return value
-            for suf2 in next.suffixs {
-                str += suf2.next.makeScript(level:level+1) + "\n"
+            for next2 in next.edgeNexts {
+                str += next2.nodeNext.makeScript(level:level+1) + "\n"
             }
             str += pad(level) + "}\n"
             return str
@@ -147,9 +147,9 @@ public extension ParNode {
         // ────────────── begin ──────────────
         
         var str = ""
-        for suf in suffixs {
+        for edgeNext in edgeNexts {
             
-            if let next = suf.next {
+            if let next = edgeNext.nodeNext {
                switch next.parOp {
                 case .and:   str += makeAnd(next)
                 case .or:    str += makeOr(next)
@@ -178,10 +178,12 @@ public extension ParNode {
         return str
     }
 
-     ///  [par.end.^([ \n\t,;]*|[/][/][^\n]*)]
+    ///  [par.end.^([ \n\t,;]*|[/][/][^\n]*)]
     func scriptLineage(_ level:Int) -> String {
-        if let prefix = prefixs.first, level > 0, let prev = prefix.prev {
-             return prev.scriptLineage(level-1) + "." + pattern
+    
+        if  let edgePrev = edgePrevs.first, level > 0,
+            let nodePrev = edgePrev.nodePrev {
+            return nodePrev.scriptLineage(level-1) + "." + pattern
         }
         else {
             return pattern

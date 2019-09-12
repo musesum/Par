@@ -8,7 +8,7 @@
 
 import Foundation
 
-public typealias SubStr = (_ str:Substring) -> String?
+public typealias MatchStr = (_ str:Substring) -> String?
 public typealias CallVoid = (()->())
 public typealias CallBool = ((Bool)->())
 public typealias CallFloat = ((Float)->())

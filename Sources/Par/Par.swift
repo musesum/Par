@@ -12,15 +12,17 @@ public class Par {
     public static let shared = Par()
     public static var trace = false
     public static var trace2 = false
-
+    
     public var parStr = ParStr()
-
+    
     public func parse(script: String) -> ParNode! {
+
         parStr.str = script
         parStr.restart()
-        if let parAny = Par.par.findMatch(parStr) {
 
-            let result = parAny.anyStr()
+        if let parAny = Par.par.findMatch(parStr).parLast {
+
+            let result = parAny.makeScript()
                 .replacingOccurrences(of: "(", with: "(\n")
                 .replacingOccurrences(of: ",", with: ",\n")
 
@@ -35,13 +37,13 @@ public class Par {
     
     public func parse(_ filename: String, _ ext:String) -> ParNode! {
 
-        parStr.read(filename, ext)
+        let _ = parStr.read(filename, ext)
         
         if Par.trace { print(parStr.str + divider()) }
-        
-        if let parAny = Par.par.findMatch(parStr) {
-        
-            let result = parAny.anyStr()
+
+       if let parAny = Par.par.findMatch(parStr).parLast {
+
+            let result = parAny.makeScript()
                 .replacingOccurrences(of: "(", with: "(\n")
                 .replacingOccurrences(of: ",", with: ",\n")
             
@@ -77,8 +79,8 @@ public class Par {
         /// parse list of sibling pars and promote up a level
         func addAnd(_ pattern: String,_ any: ParAny) {
             if let subNode = parseNode(ParNode(pattern), any, level+1) {
-                for suf in subNode.suffixs {
-                    let _ = ParEdge(superNode,suf.next)
+                for edgeNext in subNode.edgeNexts {
+                    let _ = ParEdge(superNode,edgeNext.nodeNext)
                 }
             }
         }
@@ -118,27 +120,29 @@ public class Par {
             print(any ?? "??")
         }
 
-        for nexti in parAny.next {
+        for nexti in parAny.nextPars {
 
             if Par.trace2 { print (nexti.node?.pattern ?? "nil", terminator:" ") }
 
-            switch nexti.node?.pattern {
-                
-            case "par"?:    addSub(":",nexti)
-            case "or"?:     addSub("|",nexti)
-            case "and"?:    addSub("&",nexti)
-            case "right"?:  addSub("&",nexti)
-            case "parens"?: addSub("&",nexti)
+            if let pattern =  nexti.node?.pattern {
+                switch pattern {
 
-            case "name"?:   addName(nexti.value! , nexti)
-            case "reps"?:   addReps(nexti)
-                
-            case "path"?:   addLeaf(nexti.value!)
-            case "quote"?:  addLeaf("\"" + (nexti.value!) + "\"")
-            case "regex"?:  addLeaf("'" + (nexti.value!) + "'")
-            case "match"?:  addLeaf(nexti.value! + "()")
+                    case "par":    addSub(":",nexti)
+                    case "or":     addSub("|",nexti)
+                    case "and":    addSub("&",nexti)
+                    case "right":  addSub("&",nexti)
+                    case "parens": addSub("&",nexti)
 
-            default: break // printError ("anys.any", any)
+                    case "name":   addName(nexti.value! , nexti)
+                    case "reps":   addReps(nexti)
+
+                    case "path":   addLeaf(nexti.value!)
+                    case "quote":  addLeaf("\"" + (nexti.value!) + "\"")
+                    case "regex":  addLeaf("'" + (nexti.value!) + "'")
+                    case "match":  addLeaf(nexti.value! + "()")
+
+                    default: break // printError ("anys.any", any)
+                }
             }
         }
         return superNode
@@ -150,9 +154,9 @@ public class Par {
         
         let searchStr = ParStr(str) // finds an explicit path
         
-        if let node = Par.par.findPath(searchStr) {
+        if let parNode = Par.par.findPath(searchStr) {
             
-            node.foundCall = foundCall_
+            parNode.foundCall = foundCall_
         }
         else {
             print("*** \(#function)(\"\(str)\") lost at \"\(parStr.sub)\"")
@@ -166,10 +170,10 @@ public class Par {
         ParNode("par+", [
             
             ParNode("name",[
-                ParNode("'^([A-Za-z_]\\w*)'")]),
+                ParNode(#"'^([A-Za-z_]\w*)'"#)]),
             
             ParNode("reps?", [
-                ParNode("'^([\\~]?[\\?\\+\\*]|\\{\\d+[,]?\\d*\\}[\\~]?)'")]), // ~ ? + * {2,3}
+                ParNode(#"'^([\~]?[\?\+\*]|\{\d+[,]?\d*\}[\~]?)'"#)]), // ~ ? + * {2,3}
             
             ParNode("\":\""),
             
@@ -183,7 +187,7 @@ public class Par {
                 
                 ParNode("and+",[
                     ParNode("leaf|",[
-                        ParNode("match",[ ParNode("'^([A-Za-z_]\\w*)\\(\\)'")]),
+                        ParNode("match",[ ParNode(#"'^([A-Za-z_]\w*)\(\)'"#)]),
                         ParNode("path", [ ParNode("'^[A-Za-z_][A-Za-z0-9_.]*'")]),
                         ParNode("quote",[ ParNode("'^\"([^\"]*)\"'")]),
                         ParNode("regex",[ ParNode("'^\'(?i)([^\']+)\''")])]),
@@ -203,7 +207,7 @@ public class Par {
                 ParNode("_end")
                 ]),
 
-            ParNode("_end?",[ParNode("'^([ \\n\\t,;]*|[/][/][^\\n]*)'")])])])
+            ParNode("_end?",[ParNode(#"'^([ \n\t,;]*|[/][/][^\n]*)'"#)])])])
 }
 
 

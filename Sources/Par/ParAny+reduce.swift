@@ -14,26 +14,28 @@ extension ParAny {
     public func promoteSingleLeaf() {
 
         if  value == nil,
-            next.count == 1,
-            next.first?.value != nil {
+            nextPars.count == 1,
+            let nextVal = nextPars.first?.value  {
 
-            value = next.first! .value
-            next = []
+            value = nextVal
+            nextPars = []
         }
     }
 
+    /// reduce strand ParAny to only those that match keywords
     public func reduce(keywords:[String:Any]) -> [ParAny] {
 
         if value != nil { return [self] }
 
         var reduction = [ParAny]()
-        for nexti in next {
+
+        for nexti in nextPars {
             let reduced = nexti.reduce(keywords: keywords)
             reduction.append(contentsOf: reduced)
         }
         // self's node is a keyword, so keep it
         if keywords[node?.pattern ?? ""] != nil {
-            next = reduction
+            nextPars = reduction
             return [self]
         }
         return reduction

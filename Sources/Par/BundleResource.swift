@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Resource {
+class BundleResource {
 
     let resourcePath = "../Resources"
     let name: String
