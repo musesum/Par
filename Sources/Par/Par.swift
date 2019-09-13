@@ -20,15 +20,15 @@ public class Par {
         parStr.str = script
         parStr.restart()
 
-        if let parAny = Par.par.findMatch(parStr).parLast {
+        if let parItem = Par.par.findMatch(parStr).parLast {
 
-            let result = parAny.makeScript()
+            let result = parItem.makeScript()
                 .replacingOccurrences(of: "(", with: "(\n")
                 .replacingOccurrences(of: ",", with: ",\n")
 
             if Par.trace2 { print(result + divider()) }
 
-            if let node = parseParAny(parAny) {
+            if let node = parseParItem(parItem) {
                 return node
             }
         }
@@ -41,24 +41,24 @@ public class Par {
         
         if Par.trace { print(parStr.str + divider()) }
 
-       if let parAny = Par.par.findMatch(parStr).parLast {
+       if let parItem = Par.par.findMatch(parStr).parLast {
 
-            let result = parAny.makeScript()
+            let result = parItem.makeScript()
                 .replacingOccurrences(of: "(", with: "(\n")
                 .replacingOccurrences(of: ",", with: ",\n")
             
             if Par.trace2 { print(result + divider()) }
             
-            if let node = parseParAny(parAny) {
+            if let node = parseParItem(parItem) {
                 return node
             }
         }
         return nil
     }
     
-    func parseParAny(_ parAny:ParAny) -> ParNode? {
+    func parseParItem(_ parItem:ParItem) -> ParNode? {
         
-        if let def = parseNode(ParNode("def:"),parAny,0) {
+        if let def = parseNode(ParNode("def:"),parItem,0) {
             def.parOp = .and         // change .def in top node to .and so that it will parse
             def.connectReferences(Visitor(0)) // find references to elsewhere in namespace and connect edges
             def.distillSuffixs(Visitor(0))    // reduce nested suffix of same type
@@ -67,7 +67,7 @@ public class Par {
         return nil
     }
     
-     func parseNode(_ superNode: ParNode!, _ parAny: ParAny,_ level:Int) -> ParNode! {
+     func parseNode(_ superNode: ParNode!, _ parItem: ParItem,_ level:Int) -> ParNode! {
         
         /// keep track of last node in which to apply repeat
         var lastNode = superNode
@@ -77,8 +77,8 @@ public class Par {
         }
         
         /// parse list of sibling pars and promote up a level
-        func addAnd(_ pattern: String,_ any: ParAny) {
-            if let subNode = parseNode(ParNode(pattern), any, level+1) {
+        func addAnd(_ pattern: String,_ parItem: ParItem) {
+            if let subNode = parseNode(ParNode(pattern), parItem, level+1) {
                 for edgeNext in subNode.edgeNexts {
                     let _ = ParEdge(superNode,edgeNext.nodeNext)
                 }
@@ -91,7 +91,7 @@ public class Par {
             let _ = ParEdge(superNode, lastNode)
         }
         /// Apply list of sub pars as an `after` edge
-        func addSub(_ pattern: String,_ any: ParAny) {
+        func addSub(_ pattern: String,_ any: ParItem) {
             lastNode = parseNode(ParNode(pattern), any, level+1)
             let _ = ParEdge(superNode,lastNode)
         }
@@ -100,7 +100,7 @@ public class Par {
         ///
         /// par:( name:ask, and:(regex:muse, and:(...)))
         ///
-        func addName(_ pattern: String,_ any: ParAny) {
+        func addName(_ pattern: String,_ any: ParItem) {
             if Par.trace2 { print ("`" + pattern, terminator:"` ") }
             superNode.isName = true
             superNode.parOp = .and
@@ -109,7 +109,7 @@ public class Par {
         }
 
         /// Apply repeat * ? + ~ to current node
-        func addReps(_ nexti: ParAny) {
+        func addReps(_ nexti: ParItem) {
             if let nextValue = nexti.value {
                 lastNode?.reps.parse(nextValue)
             }
@@ -120,7 +120,7 @@ public class Par {
             print(any ?? "??")
         }
 
-        for nexti in parAny.nextPars {
+        for nexti in parItem.nextPars {
 
             if Par.trace2 { print (nexti.node?.pattern ?? "nil", terminator:" ") }
 
@@ -150,7 +150,7 @@ public class Par {
 
 
     /// Attach a closure to a node, which is called when that node is found
-    func setFound(_ str: String, _ foundCall_: @escaping ParAnyVoid) {
+    func setFound(_ str: String, _ foundCall_: @escaping ParItemVoid) {
         
         let searchStr = ParStr(str) // finds an explicit path
         
@@ -163,8 +163,10 @@ public class Par {
         }
     }
     
-    /// explicitly declared parse graph
+    /// Explicitly declared parse graph, desciption of syntax in Par.par.h
+    ///
     /// - note: new lines delimits a new statement with a left and right side
+    ///
     static let par = ParNode(":", [
         
         ParNode("par+", [

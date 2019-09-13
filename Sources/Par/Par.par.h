@@ -1,4 +1,4 @@
-// this is not parsed, describes Par.par
+// this is not parsed, describes Par.par in the Par.swift file
 par+ : name reps ":" right sub _end {
 
     name  : '^[A-Za-z_]\w*'

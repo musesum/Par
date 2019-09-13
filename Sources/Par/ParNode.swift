@@ -6,7 +6,7 @@
 
 import Foundation
 
-public typealias ParAnyVoid = (_ parAny: Any) -> Void
+public typealias ParItemVoid = (_ parItem: Any) -> Void
 public typealias ParStrMatch = (_ parStr:ParStr, _ level:Int) -> ParMatching?
 
 /// A node in a parse graph with prefix and suffix edges.
@@ -37,7 +37,7 @@ public class ParNode {
 
     public var reps = Repetitions() // number of allowed repetitions to be true
     var matchStr: MatchStr?         // call external function to match substring, return any
-    var foundCall: ParAnyVoid?      // call external function with Found array, when true
+    var foundCall: ParItemVoid?      // call external function with Found array, when true
     var edgePrevs = [ParEdge]()       // prev edges, sequence is important for maintaining precedence
     var edgeNexts = [ParEdge]()       // next edges, sequence is important for maintaining precedence
     var regx: NSRegularExpression?  // compiled regular expression
@@ -154,12 +154,12 @@ public class ParNode {
         
         print("\"\(str)\"  ⟹  ", terminator:"")
 
-        if let parAny = findMatch(ParStr(str)).parLast {
+        if let parItem = findMatch(ParStr(str)).parLast {
 
-            print(parAny.makeScript())
+            //print(parItem.makeScript())
             
-            if let foundParAny = parAny.lastNode(),
-                let foundNode = foundParAny.node {
+            if let foundParItem = parItem.lastNode(),
+                let foundNode = foundParItem.node {
                 
                 print("\(foundNode.nodeStrId()) = \(String(describing: matchStr_))")
                 foundNode.matchStr = matchStr_
@@ -170,9 +170,9 @@ public class ParNode {
         }
     }
     
-    public func go(_ parStr: ParStr, _ nodeValCall: @escaping ParAnyVoid) {
-        if let parAny = findMatch(parStr).parLast {
-            nodeValCall(parAny)
+    public func go(_ parStr: ParStr, _ nodeValCall: @escaping ParItemVoid) {
+        if let parItem = findMatch(parStr).parLast {
+            nodeValCall(parItem)
         }
         else {
             print("*** \(#function)(\"\(parStr.str)\") not found")

@@ -21,19 +21,19 @@ public extension ParNode {
 
             parStr.putSnapshot(snapshot) // return to start position
 
-            if let parAny = edgeNext.nodeNext.findMatch(parStr, level).parLast {
-                if parAny.hops == 0 {
-                    return ParMatching(parAny,ok:true)
+            if let parItem = edgeNext.nodeNext.findMatch(parStr, level).parLast {
+                if parItem.hops == 0 {
+                    return ParMatching(parItem,ok:true)
                 }
                 else {
-                    matching.add(parAny)
+                    matching.add(parItem)
                 }
             }
         }
         return matching.bestCandidate()
     }
 
-    /// Return a ParAny when all suffixes match (boolean and),
+    /// Return a ParItem when all suffixes match (boolean and),
     /// otherwise, return nil to signify failure.
     ///
     /// A `.def` is not parsed; it defines a namespace.
@@ -68,7 +68,7 @@ public extension ParNode {
         return parStr.matchMatchStr(self)
     }
 
-    /// return empty parAny, when parStr.sub matches pattern
+    /// return empty parItem, when parStr.sub matches pattern
     func testQuo(_ parStr:ParStr, level:Int) -> ParMatching {
         return parStr.matchQuote(self)
     }
@@ -132,9 +132,9 @@ public extension ParNode {
         case .match: matching = forRepeat(parStr,level,testMatch)
         }
 
-        if let parAny = matching.parLast {
-            foundCall?(parAny)
-            parStr.trace(self,parAny,level)
+        if let parItem = matching.parLast {
+            foundCall?(parItem)
+            parStr.trace(self,parItem,level)
         }
         else {
             parStr.putSnapshot(snapshot) // pop

@@ -11,14 +11,14 @@
 
 import Foundation
 
-let Bug1Par = ( // 🚫bug! single rvalue `ask`
+let Bug1Par = // 🚫bug! single rvalue `ask`
 #"""
 muse : ask {
 ask : "muse" ("please" | "yo")?
 }
-"""#,"")
+"""#
 
-let Bug2Par = ( // 🚫bug! double ((...) ...)
+let Bug2Par =  // 🚫bug! double ((...) ...)
 #"""
  a : b ((c | d) | e) {
     b : "bb"
@@ -26,10 +26,10 @@ let Bug2Par = ( // 🚫bug! double ((...) ...)
     d : "dd"
     e : "ee"
 }
-"""#,"")
+"""#
 
 
-let Namespace1Par = (
+let Namespace1Par =
 #"""
 a : b (c | d? | e)+ f {
     b : "bb"
@@ -38,35 +38,34 @@ a : b (c | d? | e)+ f {
     e : "ee"
     f : "ff"
 }
-"""#,"")
+"""#
 
-
-let Namespace2Par = (
+let Namespace2Par =
 #"""
 muse : ask etc {
     ask  : "muse" ("please" | "yo")?
     etc  : "etc"
 }
-"""#,"")
+"""#
 
-let CardinalPar = (
+let CardinalPar = 
 #"""
 a : uno{2,3} dos{2,} {
     uno : "1"
     dos : uno? "2"
 }
-"""#,"")
+"""#
 
-let MultiGroupPar = (
+let MultiGroupPar =
 #"""
 type :  ("alarms" | memos) ("yo" | etc)  match? {
     memos : "memos"
     etc   : "etc"
     match : memos matches()
 }
-"""#,"")
+"""#
 
-let MusePar = (
+let MusePar =
 #"""
 muse : ask (show | hide | setting | clear) {
 
@@ -91,9 +90,9 @@ muse : ask (show | hide | setting | clear) {
 
      refresh : ('refresh' | 'reset') 'screen'?
 }
-"""#,"")
+"""#
 
-let RoutinePar = (
+let RoutinePar =
 #"""
 routine : ask (add | remove) dow+ tod duration? title {
 
@@ -138,7 +137,8 @@ routine : ask (add | remove) dow+ tod duration? title {
         digits : '[0-9]{1,5}'
     }
 }
-"""#,
+"""#
+let RoutineParOut =
 #"""
 routine : ask  (add | remove)  dow+ tod duration? title {
     ask : 'routine'
@@ -182,9 +182,9 @@ routine : ask  (add | remove)  dow+ tod duration? title {
     }
 
 }
-"""#)
+"""#
 
-let MediaPar = (
+let MediaPar =
 #"""
 media : (movie | music) {
 
@@ -245,7 +245,8 @@ media : (movie | music) {
         digits : '[0-9]{1,5}'
     }
 }
-"""#,
+"""#
+let MediaParOut =
 #"""
 media :  (movie | music)  {
     movie : ask  (title | director | actors)  {
@@ -295,4 +296,4 @@ media :  (movie | music)  {
         digits : '[0-9]{1,5}'
     }
 }
-"""#)
+"""#

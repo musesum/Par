@@ -1,4 +1,4 @@
-//  ParAny.swift
+//  ParItem.swift
 //
 //  Created by warren on 7/13/17.
 //  Copyright © 2017 Muse Dot Company
@@ -6,12 +6,12 @@
 
 import Foundation
 
-/// A ParNode pattern plus instance of Any, which may be either a String or [ParAny]
-public class ParAny {
+/// A ParNode pattern plus instance of Any, which may be either a String or [ParItem]
+public class ParItem {
 
-    public var node: ParNode? // reference to parse node
+    public var node: ParNode?   // reference to parse node
     public var value: String?    // either value or next, not both to support
-    public var nextPars = [ParAny]() // either a String, ParAny, or [ParAny]
+    public var nextPars = [ParItem]() // either a String, ParItem, or [ParItem]
 
     public var hops = 0
     var time = TimeInterval(0)
@@ -28,7 +28,7 @@ public class ParAny {
     }
 
     init (_ node_  : ParNode!,
-          _ next_  : [ParAny],
+          _ next_  : [ParItem],
           _ hops_  : Int = 0,
           _ time_  : TimeInterval = 0) {
 
@@ -39,7 +39,7 @@ public class ParAny {
     }
 
    /// Search a strand of nodeAnys for the last node
-    func lastNode() -> ParAny! {
+    func lastNode() -> ParItem! {
         for reversePar in nextPars.reversed() {
             if reversePar.value != nil ||
                 reversePar.nextPars.count > 0 {
@@ -82,9 +82,9 @@ public class ParAny {
 
         switch any {
 
-        case let parAny as ParAny:
+        case let parItem as ParItem:
 
-            print(parAny.makeScript(), terminator:" ")
+            print(parItem.makeScript(), terminator:" ")
 
         case let anys as [Any]:
 

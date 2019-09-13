@@ -1,5 +1,5 @@
 //
-//  ParMatchNow.swift
+//  ParRecents.swift
 //  
 //
 //  Created by warren on 9/11/19.
@@ -8,21 +8,21 @@
 import Foundation
 
 
-public class ParMatchNow: ParMatching {
+public class ParRecents: ParMatching {
 
     public static var shortTermMemory = TimeInterval(0) // seconds
 
     func forget(_ timeNow: TimeInterval) {
-        if parAnys.count == 0 {
+        if parItems.count == 0 {
             return
         }
         if timeNow == 0 {
-            return parAnys.removeAll()
+            return parItems.removeAll()
         }
-        let cutoffTime = timeNow - ParMatchNow.shortTermMemory
+        let cutoffTime = timeNow - ParRecents.shortTermMemory
         var removeCount = 0
-        for parAny in parAnys {
-            if parAny.time < cutoffTime {
+        for parItem in parItems {
+            if parItem.time < cutoffTime {
                 removeCount += 1
             }
             else {
@@ -30,7 +30,7 @@ public class ParMatchNow: ParMatching {
             }
         }
         if removeCount > 0 {
-            parAnys.removeFirst(removeCount)
+            parItems.removeFirst(removeCount)
         }
     }
 

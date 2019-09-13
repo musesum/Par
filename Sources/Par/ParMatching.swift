@@ -7,38 +7,38 @@
 
 import Foundation
 
-/// An array of `[ParAny]`, which can reduce a single suffix
+/// An array of `[ParItem]`, which can reduce a single suffix
 public class ParMatching {
 
-    public var parAnys = [ParAny]()
+    public var parItems = [ParItem]()
     var count = 0
     var ok = false
 
     var value: String? {
         get {
-            if ok, let last = parAnys.last {
+            if ok, let last = parItems.last {
                 return last.value
             }
             return nil
         }
     }
-    public var parLast: ParAny? {
+    public var parLast: ParItem? {
         get {
-            if ok, let last = parAnys.last {
+            if ok, let last = parItems.last {
                 return last
             }
             return nil
         }
     }
 
-    init(_ parAny_:ParAny? = nil, ok ok_: Bool = false ) {
-        if let parAny = parAny_ {
-            parAnys.append(parAny)
+    init(_ parItem_:ParItem? = nil, ok ok_: Bool = false ) {
+        if let parItem = parItem_ {
+            parItems.append(parItem)
         }
         ok = ok_
     }
-    init(_ parAnys_:[ParAny], ok ok_: Bool = false ) {
-        parAnys = parAnys_
+    init(_ parItems_:[ParItem], ok ok_: Bool = false ) {
+        parItems = parItems_
         ok = ok_
     }
 
@@ -55,26 +55,26 @@ public class ParMatching {
         return false
     }
 
-    /// add a parAny to this ParMatching
-    func add (_ parAny: ParAny) {
+    /// add a parItem to this ParMatching
+    func add (_ parItem: ParItem) {
 
-        if !(parAny.node?.ignore ?? false) {
-            parAnys.append(parAny)
+        if !(parItem.node?.ignore ?? false) {
+            parItems.append(parItem)
         }
     }
 
-    /// return parAny with fewest hops
+    /// return parItem with fewest hops
     func bestCandidate() -> ParMatching {
-        if parAnys.count == 0 {
+        if parItems.count == 0 {
             return ParMatching(nil, ok: false)
         }
-        var bestParAny = parAnys.first!
-        for parAny in parAnys {
-            if parAny.hops < bestParAny.hops {
-                bestParAny = parAny
+        var bestParItem = parItems.first!
+        for parItem in parItems {
+            if parItem.hops < bestParItem.hops {
+                bestParItem = parItem
             }
         }
-        return ParMatching(bestParAny, ok: true)
+        return ParMatching(bestParItem, ok: true)
     }
 
     /// Reduce anys
@@ -82,12 +82,12 @@ public class ParMatching {
         
         if !ok { return ParMatching(nil, ok: false) }
         
-        switch parAnys.count {
+        switch parItems.count {
 
-        case 0: return ParMatching(ParAny(node,nil), ok: true)
+        case 0: return ParMatching(ParItem(node,nil), ok: true)
 
         case 1:
-            if  let parFirst = parAnys.first,
+            if  let parFirst = parItems.first,
                 let parNode = parFirst.node {
 
                 switch  parNode.parOp  {
@@ -95,7 +95,7 @@ public class ParMatching {
                 case .def,.and,.or:
 
                     if isName, parNode.id != node.id {
-                        return ParMatching(ParAny(node,[parFirst]), ok: true)
+                        return ParMatching(ParItem(node,[parFirst]), ok: true)
                     }
                     else {
                          return ParMatching(parFirst, ok: true)
@@ -106,7 +106,7 @@ public class ParMatching {
 
                 case .quo,.rgx:
 
-                    return ParMatching(ParAny(node, parFirst.value, parFirst.hops), ok: true)
+                    return ParMatching(ParItem(node, parFirst.value, parFirst.hops), ok: true)
                 }
             }
 
@@ -115,27 +115,27 @@ public class ParMatching {
 
         // 
         var hasPromotePars = false
-        var promotedNextPars = [ParAny]()
-        for parAny in parAnys {
-            if let promotePars = promoteNextPars(parAny) {
+        var promotedNextPars = [ParItem]()
+        for parItem in parItems {
+            if let promotePars = promoteNextPars(parItem) {
                 hasPromotePars = true
                 promotedNextPars.append(contentsOf: promotePars)
             }
             else {
-                promotedNextPars.append(parAny)
+                promotedNextPars.append(parItem)
             }
         }
         if hasPromotePars {
-            parAnys = promotedNextPars
+            parItems = promotedNextPars
         }
 
         // sum up hops for chidren
         var hops = 0
-        for parAny in parAnys {
-            hops += parAny.hops
+        for parItem in parItems {
+            hops += parItem.hops
         }
-        let parAny = ParAny(node,parAnys,hops)
-        return ParMatching(parAny, ok: true)
+        let parItem = ParItem(node,parItems,hops)
+        return ParMatching(parItem, ok: true)
     }
 
     /// Accommodate a graph like this, example:
@@ -154,11 +154,11 @@ public class ParMatching {
     ///     or:(path:show, (path:hide, path:setting, path:clear))
     /// to  or:(path:show, path:hide, path:setting, path:clear)
 
-    func promoteNextPars(_ parAny:ParAny) -> [ParAny]? {
-        if  parAny.node?.pattern == "",
-            parAny.value == nil {
+    func promoteNextPars(_ parItem:ParItem) -> [ParItem]? {
+        if  parItem.node?.pattern == "",
+            parItem.value == nil {
 
-            return parAny.nextPars
+            return parItem.nextPars
         }
         return nil
     }

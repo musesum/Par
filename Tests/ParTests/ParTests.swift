@@ -5,83 +5,74 @@ import XCTest
 
 final class ParTests: XCTestCase {
 
-    var errorCount = 0
+  
+    /// parse script into graph and then generate output script from graph.
+    /// If the actual output is different from the expected output
+    /// then generate an error meassage with a 🚫 at where they differ.
+    public func testParse(_ original_: String,_ expected_: String = "") -> Int {
 
-    /// compare expected with actual result and print error strings
-    /// with 🚫 marker at beginning of non-matching section
-    ///
-    /// - parameter script: expected output
-    /// - parameter script: actual output
-    ///
-    func testCompare(_ expected:String, _ actual:String, echo:Bool = false) {
-        if echo {
-            print ("⟹ " + expected, terminator:"")
-        }
-        // for non-match, compare will insert a 🚫 into expectedErr and actualErr
-        if let (expectedErr,actualErr) = ParStr.compare(expected, actual) {
-            print (" 🚫 mismatch")
-            print ("⟹ " + expectedErr)
-            print ("⟹ " + actualErr + "\n")
-            errorCount += 1
-        }
-        else {
-            print ("⟹ " + expected + " ✓\n")
-        }
-    }
-
-
-      public func test(_ script: (String,String)) {
-
-        Par.trace = false // for debugging error
+        Par.trace = false // for debugging errors
         Par.trace2 = false
         ParStr.tracing = false
 
         // script contains original to parse and expected result of parse
-        var (original,expected) = script
-        if expected == "" { expected = original }
+        // sometimes the expected is same as original
+        // sometimes the output adds additional parents
+        let original = original_
+        let expected = expected_ == "" ? original : expected_
 
         if let graph = Par.shared.parse(script:original) {
 
-           // graph.printGraph(Visitor(0))
+            // graph.printGraph(Visitor(0))
 
             let actual = graph.makeScript(level:0)
-            testCompare(expected, actual)
+            return ParStr.testCompare(expected, actual)
         }
         else {
             print(" 🚫 failed parse")
-            errorCount += 1
+            return 1 // error
         }
-        print(divider(30))
     }
 
     /// test basic parsing by comparing with generated output
     func testBasics() {
-        errorCount = 0
+        print("\n------------------------------------")
+        var err = 0 // error count
+        //let _ = testParse(Bug1Par) //🚫bug! single rvalue `ask`
+        //let _ = testParse(Bug2Par) //🚫bug! double ((...) ...)
+        err += testParse(Namespace1Par)
+        err += testParse(Namespace2Par)
+        err += testParse(CardinalPar)
+        err += testParse(MultiGroupPar)
+        err += testParse(MusePar)
+        err += testParse(RoutinePar,RoutineParOut)
+        err += testParse(MediaPar,MediaParOut)
 
-        // test(Bug1Par) 🚫bug! single rvalue `ask`
-        // test(Bug2Par) 🚫bug! double ((...) ...)
-
-        test(Namespace1Par)
-        test(Namespace2Par)
-        test(CardinalPar)
-        test(MultiGroupPar)
-        test(MusePar)
-        test(RoutinePar)
-        test(MediaPar)
-
-        XCTAssertEqual(errorCount,0)
+        XCTAssertEqual(err,0)
     }
+
     /// test natural language processing with shifting order
-    func testNLP() {
+    func testMuseNLP() {
 
-        let muse = Muse()
-        errorCount = muse.testScript()
-    
-        XCTAssertEqual(errorCount,0)
+        let err = MuseNLP().testScript()
+        XCTAssertEqual(err,0)
     }
 
+    /// Test Tr3 graph parse
+    func testTr3() {
+    print("\n------------------------------------")
+    print(" ⟹ What follows a parse of the Tr3 \n" +
+    "Par is vertically integrated with Tr3 so,\n" +
+    "Par should never break Tr3 for major versions.\n")
+        let err = testParse(Tr3Par)
+    print("------------------------------------")
+    XCTAssertEqual(err,0)
+    }
+
+    
     static var allTests = [
         ("testBasics", testBasics),
-        ("testNLP", testNLP),
+        ("testNLP", testMuseNLP),
+        ("testTr3", testTr3),
     ]
 }

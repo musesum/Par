@@ -1,4 +1,4 @@
-//  ParAny+reduce.swift
+//  ParItem+reduce.swift
 //  Par iOS
 //
 //  Created by warren on 3/18/19.
@@ -6,9 +6,9 @@
 
 import Foundation
 
-extension ParAny {
+extension ParItem {
 
-    /// when ParAny has a single leaf node with a value,
+    /// when ParItem has a single leaf node with a value,
     /// then promote the leaf value
 
     public func promoteSingleLeaf() {
@@ -22,12 +22,12 @@ extension ParAny {
         }
     }
 
-    /// reduce strand ParAny to only those that match keywords
-    public func reduce(keywords:[String:Any]) -> [ParAny] {
+    /// reduce strand ParItem to only those that match keywords
+    public func reduce(keywords:[String:Any]) -> [ParItem] {
 
         if value != nil { return [self] }
 
-        var reduction = [ParAny]()
+        var reduction = [ParItem]()
 
         for nexti in nextPars {
             let reduced = nexti.reduce(keywords: keywords)
@@ -41,13 +41,13 @@ extension ParAny {
         return reduction
     }
 
-    public func reduce1(keywords:[String:Any]) -> ParAny {
+    public func reduce1(keywords:[String:Any]) -> ParItem {
 
         let reduction = reduce(keywords: keywords)
         if reduction.count == 1 {
             return reduction[0]
         }
-        return ParAny(ParNode("child"),reduction)
+        return ParItem(ParNode("child"),reduction)
     }
     
 }

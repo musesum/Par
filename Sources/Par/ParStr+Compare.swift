@@ -10,22 +10,44 @@
 import Foundation
 
 public extension ParStr {
-
+    /// compare expected with actual result and print error strings
+    /// with 🚫 marker at beginning of non-matching section
+    ///
+    /// - parameter script: expected output
+    /// - parameter script: actual output
+    ///
+    static func testCompare(_ expected:String, _ actual:String, echo:Bool = false) -> Int {
+        if echo {
+            print ("⟹ " + expected, terminator:"")
+        }
+        // for non-match, compare will insert a 🚫 into expectedErr and actualErr
+        if let (expectedErr,actualErr) = ParStr.compare(expected, actual) {
+            print (" 🚫 mismatch")
+            print ("⟹ " + expectedErr)
+            print ("⟹ " + actualErr + "\n")
+            return 1 // error
+        }
+        else {
+            print ("⟹ " + expected + " ✓\n")
+            return 0 // no error
+        }
+    }
+    
     static func compare(_ str1:String,_ str2:String) -> (String,String)? {
-
+        
         var sub1 = Substring(str1)
         var sub2 = Substring(str2)
         var i1 = sub1.startIndex
         var i2 = sub2.startIndex
-
+        
         // advance i1,i2 indexes past whitespace and/or comments
         func eatWhitespace() {
-
+            
             var hasComment = false
-
+            
             while i1 < sub1.endIndex && "\n\t ".contains(sub1[i1]) { i1 = sub1.index(after: i1) }
             while i2 < sub2.endIndex && "\n\t ".contains(sub2[i2]) { i2 = sub2.index(after: i2) }
-
+            
             // remove comments
             if sub1[i1 ..< sub1.endIndex].hasPrefix("//") {
                 while i1 < sub1.endIndex && "\n" != str1[i1] { i1 = sub1.index(after: i1) }
@@ -40,30 +62,30 @@ public extension ParStr {
                 eatWhitespace()
             }
         }
-
+        
         func makeError() -> (String,String)? {
-
+            
             let error1 = str1[..<i1] + "🚫" + str1[i1..<str1.endIndex]
             let error2 = str2[..<i2] + "🚫" + str2[i2..<str2.endIndex]
             return (String(error1), String(error2))
         }
-
+        
         // -------------- body --------------
-
+        
         eatWhitespace() // start by removing leading comments
-
+        
         while i1 < str1.endIndex && i2 < sub2.endIndex {
-
+            
             if sub1[i1] != sub2[i2] { return makeError() }
-
+            
             i1 = sub1.index(after: i1)
             i2 = sub2.index(after: i2)
-
+            
             eatWhitespace()
         }
-
+        
         // nothing remaining for either string?
-
+        
         if  i1 == sub1.endIndex,
             i2 == sub2.endIndex {
             return nil
@@ -72,13 +94,13 @@ public extension ParStr {
             return makeError()
         }
     }
-
+    
     func compare(_ str2: String) -> String? {
         if let (_,error) = ParStr.compare(str,str2) {
             return error
         }
         return nil
     }
-
+    
 }
 

@@ -15,19 +15,19 @@ public class ParStr {
     public var whitespace = "\t "
     public var str = ""     // original string
     var sub = Substring()   // a substring of str, updated during parse
-
+    
     public convenience init(_ str_: String) {
         
         self.init()
         str = str_
         restart() // set sub from str
     }
-
+    
     // may override to get words, so box with Any
     func getSnapshot() -> Any? {
         return (sub)
     }
-     // may override to put words, so box with Any
+    // may override to put words, so box with Any
     func putSnapshot(_ any: Any?) {
         if let any = any as? Substring {
             sub = any
@@ -36,14 +36,14 @@ public class ParStr {
     func isEmpty() -> Bool {
         return sub.isEmpty
     }
-
+    
     // restart sub(string) from beginning of str
     func restart() {
         sub = str[str.startIndex ..< str.endIndex]
     }
     
     public func read(_ filename: String, _ ext:String) -> String {
-
+        
         let resource = BundleResource(name: filename, type: ext)
         do {
             let resourcePath = resource.path
@@ -53,10 +53,10 @@ public class ParStr {
         }
         return ""
     }
-
-    /// advance past whitespaces and whatever else
+    
+    /// advance past whitespace and whatever else, such as `()`
     func advancePastChars(_ chars:String) {
-
+        
         var count = 0;
         for char in sub {
             if chars.contains(char) { count += 1 }
@@ -66,44 +66,51 @@ public class ParStr {
             sub = count < sub.count ? sub[ sub.index(sub.startIndex, offsetBy: count) ..< sub.endIndex] : Substring()
         }
     }
-    /// Both matching and advancing range, for example:
-    ///
-    ///     '^\'([^\']+)\'' // matches inside, advance outside
-    ///
-   
+    
     /// match a quoted string and advance past match
     func matchQuote(_ node: ParNode!, withEmpty:Bool=false) -> ParMatching {
-
+        
         let pat = node.pattern
-
+        
         if pat == "" {
             if withEmpty {
-                return ParMatching( ParAny(node,""), ok: true)
+                return ParMatching( ParItem(node,""), ok: true)
             }
         }
         else if pat.count <= sub.count, sub.hasPrefix(pat) {
-
+            
             sub = pat.count < sub.count
-            ? sub[ sub.index(sub.startIndex, offsetBy: pat.count) ..< sub.endIndex]
-            : Substring()
-
+                ? sub[ sub.index(sub.startIndex, offsetBy: pat.count) ..< sub.endIndex]
+                : Substring()
+            
             advancePastChars(whitespace)
-            return ParMatching(ParAny(node,pat), ok: true)
+            return ParMatching(ParItem(node,pat), ok: true)
         }
         return ParMatching(nil, ok:false)
     }
-
-    /// return result, when parStr.sub matches external function, if it exists
+    
+    /// Any word followed by parens `()` is a special match type
+    /// where runtime searches and attaches a closure to provide more
+    /// word to compare. For example:
+    ///
+    ///     events : 'event' eventList()
+    ///
+    /// Creates node `events` that has two child nodes: `'event'` and `eventList()`
+    /// After parsing the script, the runtime searches for the node `eventList()`
+    /// and attaches as `eventListChecker`, which returns a list a words to check.
+    ///
+    /// This is very useful for dynamic data which changes ofen, such as a Calendar
+    ///
     func matchMatchStr(_ node:ParNode!) -> ParMatching {
         // closure has already been set, so execute it
         if node.matchStr != nil,
             let str = node.matchStr?(sub) {
-
+            
             sub = str.count < sub.count
                 ? sub[ sub.index(sub.startIndex, offsetBy: str.count) ..< sub.endIndex ]
                 : Substring()
             advancePastChars(whitespace+"()")
-            return ParMatching(ParAny(node,str),ok: true)
+            return ParMatching(ParItem(node,str),ok: true)
         }
             // closure has not been set, so test name match
         else {
@@ -115,10 +122,10 @@ public class ParStr {
         }
         return ParMatching(nil, ok: false)
     }
-
+    
     static func makeSlice(_ sub: Substring, del:String = "⦙", length:Int = 10) -> String {
-
-         if sub.count <= 0 {
+        
+        if sub.count <= 0 {
             return del.padding(toLength:length, withPad: " ", startingAt: 0) + del + " "
         }
         else {
@@ -131,7 +138,8 @@ public class ParStr {
         }
     }
     // ----------------------------------------
-
+    
+    /// result range for regular expression
     struct RangeRegx {
         var matching: Range<String.Index>
         var advance: Range<String.Index>
@@ -140,26 +148,25 @@ public class ParStr {
             advance = Range(advance_, in:str)!
         }
     }
-    /**
-     Match regular expression to beginning of substring
-
-     - parameter regx: compiled regular expression
-     - returns: ranges of inner value and outer match, or nil
-     */
+    
+    /// Match regular expression to beginning of substring
+    ///
+    /// - parameter regx: compiled regular expression
+    /// - returns: ranges of inner value and outer match, or nil
     func matchRegx(_ regx: NSRegularExpression) -> RangeRegx! {
-
+        
         let nsRange = NSRange( sub.startIndex ..< sub.endIndex, in: str)
         let match = regx.matches(in: str, options:[.anchored], range:nsRange)
         if match.count == 0 { return nil }
         switch match[0].numberOfRanges {
-        case 1:  return RangeRegx(match[0].range(at: 0), match[0].range(at: 0), str)
-        default: return RangeRegx(match[0].range(at: 1), match[0].range(at: 0), str)
+            case 1:  return RangeRegx(match[0].range(at: 0), match[0].range(at: 0), str)
+            default: return RangeRegx(match[0].range(at: 1), match[0].range(at: 0), str)
         }
     }
-
+    
     /// compile a regular expression to be used later, during parse
     static func compile (_ pattern:String) -> NSRegularExpression! {
-
+        
         let options : NSRegularExpression.Options = [
             //.caseInsensitive,
             //.allowCommentsAndWhitespace,
@@ -168,7 +175,7 @@ public class ParStr {
             .anchorsMatchLines,
             .useUnixLineSeparators,
             .useUnicodeWordBoundaries]
-
+        
         do { let regx = try NSRegularExpression(pattern: pattern, options:options)
             return regx
         }
@@ -177,36 +184,36 @@ public class ParStr {
             return nil
         }
     }
-
+    
     /// match a regular expression and advance past match
     func matchRegx(_ node: ParNode) -> ParMatching {
-
+        
         if  let regx = node.regx,
             let rangeRegx = matchRegx(regx) {
-
+            
             let upperIndex =  rangeRegx.advance.upperBound
-
+            
             sub = upperIndex < sub.endIndex
                 ? sub[upperIndex ..< sub.endIndex]
                 : Substring()
-
+            
             advancePastChars(whitespace)
-
+            
             let result = String(str[rangeRegx.matching])
-            let parAny = ParAny(node,result)
-            return ParMatching(parAny,ok:true)
+            let parItem = ParItem(node,result)
+            return ParMatching(parItem,ok:true)
         }
         return ParMatching(nil, ok: false)
     }
     
     func trace(_ node:ParNode!, _ any:Any?, _ level:Int) {
-
+        
         // ignore if not tracing
         if !ParStr.tracing { return }
-
+        
         // add a value if there is one
-        if let parAny = any as? ParAny,
-            let parValue = parAny.value {
+        if let parItem = any as? ParItem,
+            let parValue = parItem.value {
             // indent predecessors based on level
             let pad = " ".padding(toLength: level*2, withPad: " ", startingAt: 0)
             let slice = ParStr.makeSlice(sub) + pad
@@ -215,6 +222,6 @@ public class ParStr {
             print( slice + node.pattern + ".\(node.id) \(reps) \(val)")
         }
     }
-
+    
 }
 

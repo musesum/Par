@@ -8,7 +8,7 @@ import Foundation
 /// Parse a sequential set of words
 public class ParWords: ParStr {
 
-    var recents = ParMatchNow()
+    var parRecents = ParRecents()
     var words : [Substring]!
     var found : [Int]! // index of found
     var starti = 0 // where to start searching
@@ -30,7 +30,7 @@ public class ParWords: ParStr {
         count = 0
         words = sub.split(separator: " ")
         found = [Int](repeating: -1, count: words.count)
-        recents.forget(time)
+        parRecents.forget(time)
     }
 
     /// Substring of current ParWords state. To all parser to push and pop state.
@@ -67,63 +67,12 @@ public class ParWords: ParStr {
         return sub.isEmpty
     }
 
-   /// Minimun number of hops `min(<,^,v)` from expected, which is based on proximity to:
-   ///            < sequ(ence) position,
-   ///            ^ prev(ious) match,
-   ///            v next match.
-   ///  For example, when expecting `"muse show event yo"`:
-   ///
-   ///        "muse show event yo"  ⟹
-   ///        //   min(<,^,v)   => hops
-   ///        0,0: min(0,.,0) += 0 => 0
-   ///        1,1: min(0,0,0) += 0 => 0
-   ///        2,2: min(0,0,0) += 0 => 0
-   ///        3,3: min(0,0,.) += 0 => 0
-   ///
-   ///        "muse event show yo"  ⟹
-   ///         //   min(<,^,v)  => hops
-   ///        0,0: min(0,.,1) += 0 => 0
-   ///        1,2: min(1,1,2) += 1 => 1
-   ///        2,1: min(1,2,1) += 1 => 2
-   ///        3,3: min(0,1,.) += 0 => 2
-   ///
-   ///        "yo muse show event"  ⟹
-   ///        //   min(<,^,v)   => hops
-   ///        0,1: min(1,.,0) += 0 => 0
-   ///        1,2: min(1,0,0) += 0 => 0
-   ///        2,3: min(1,0,4) += 0 => 0
-   ///        3,0: min(3,4,.) += 3 => 3
-   ///
-   ///        "muse show yo event"  ⟹  hops:2
-   ///        "muse event yo show"  ⟹  hops:2
-    public func totalHops(trace:Bool = false) -> Int {
-
-        if trace { print("\n//   min(<,^,v)   => hops") }
-        var total = 0
-        let count = words.count
-        for i in 0 ..< count {
-            let j =  found[i]
-            let sequ =                abs(i-j) // sequence distance
-            let prev = i > 0        ? abs(found[i-1]+1 - j) : Int.max
-            let next = i < count-1  ? abs(found[i+1]-1 - j) : Int.max
-            let shortest = min(sequ,prev,next) // min(<,^,v)
-            total += shortest
-            if trace {
-                // print current state
-                let prevStr = prev != Int.max ? String(prev) : "."
-                let nextStr = next != Int.max ? String(next) : "."
-                print("\(i),\(j): min(\(sequ),\(prevStr),\(nextStr)) += \(shortest) => \(total)")
-            }
-        }
-        return total
-    }
-
-    /// Advance past match and return parAny with number of hops from normal sequence.
+    /// Advance past match and return parItem with number of hops from normal sequence.
     /// - note: extension of ParStr, for a set of words match in parallel. Only use on a short phrase.
-    func advancePar(_ node:ParNode!, _ index:Int, _ str: String!,_ deltaTime:TimeInterval = 0) -> ParAny? {
+    func advancePar(_ node:ParNode!, _ index:Int, _ str: String!,_ deltaTime:TimeInterval = 0) -> ParItem? {
 
         /// matching a recent query is treated as a last resort, which is insured by adding cuttoff time for short term memory
-        let penaltyHops = deltaTime > 0 ? Int(deltaTime + ParMatchNow.shortTermMemory) : 0
+        let penaltyHops = deltaTime > 0 ? Int(deltaTime + ParRecents.shortTermMemory) : 0
 
         // add from recent or has extra matches, so extend found
         if deltaTime > 0 || count >= found.count {
@@ -145,13 +94,12 @@ public class ParWords: ParStr {
             let expected = nexti - 1
             hops = min(hops,abs(expected - index))
         }
-        print ("\(str!):\(hops + penaltyHops) ", terminator:"")
         count += 1
         starti = (index+1) % words.count
 
-        let parAny = ParAny(node, str, hops + penaltyHops, Date().timeIntervalSince1970)
-        recents.add(parAny)
-        return parAny
+        let parItem = ParItem(node, str, hops + penaltyHops, Date().timeIntervalSince1970)
+        parRecents.add(parItem)
+        return parItem
     }
 
 
@@ -168,8 +116,8 @@ public class ParWords: ParStr {
         if starti < words.count {
             for index in starti ..< words.count {
                 if let str = match(index) {
-                    let parAny = advancePar(node,index,str) //???
-                    return ParMatching(parAny, ok: true)
+                    let parItem = advancePar(node,index,str) //???
+                    return ParMatching(parItem, ok: true)
                 }
             }
         }
@@ -178,22 +126,22 @@ public class ParWords: ParStr {
         if starti > 0 {
             for index in (0 ..< starti).reversed() {
                 if let str = match(index) {
-                    let parAny = advancePar(node,index,str)
-                    return ParMatching(parAny, ok: true)
+                    let parItem = advancePar(node,index,str)
+                    return ParMatching(parItem, ok: true)
                 }
             }
         }
-        // test non optional recents
-        if recents.parAnys.count > 0,
+        // test unclaimed keywords in short term memory
+        if parRecents.parItems.count > 0,
           node.reps.repMin >= 1 {
 
-            for parAny in recents.parAnys.reversed() {
-                if  let id = parAny.node?.id, id == node.id,
-                    let word = parAny.value {
+            for parItem in parRecents.parItems.reversed() {
+                if  let id = parItem.node?.id, id == node.id,
+                    let word = parItem.value {
 
-                    let deltaTime = time - parAny.time
-                    let parAny = advancePar(node, words.count, word, deltaTime)
-                    return ParMatching(parAny, ok: true)
+                    let deltaTime = time - parItem.time
+                    let parItem = advancePar(node, words.count, word, deltaTime)
+                    return ParMatching(parItem, ok: true)
                 }
             }
         }
@@ -219,15 +167,15 @@ public class ParWords: ParStr {
         // for an empty value, maybe return true
         if node.pattern == "" {
 
-            if withEmpty { return ParMatching(ParAny(node,""),ok: true) }
+            if withEmpty { return ParMatching(ParItem(node,""),ok: true) }
             else         { return ParMatching(nil, ok: false) }
         }
         // search forward from last match
         if starti < words.count {
             for index in starti ..< words.count {
                 if match(index) {
-                    let parAny = advancePar(node,index,node.pattern)
-                    return ParMatching(parAny,ok:true)
+                    let parItem = advancePar(node,index,node.pattern)
+                    return ParMatching(parItem,ok:true)
                 }
             }
         }
@@ -236,22 +184,22 @@ public class ParWords: ParStr {
         if starti > 0 {
             for  index in (0 ..< starti).reversed()  {
                 if match(index) {
-                    let parAny = advancePar(node,index,node.pattern)
-                    return ParMatching(parAny,ok: true)
+                    let parItem = advancePar(node,index,node.pattern)
+                    return ParMatching(parItem,ok: true)
                 }
             }
         }
 
-        // test non optional recents
-        if recents.parAnys.count > 0,
+        // test unclaimed keywords in short term memory
+        if parRecents.parItems.count > 0,
            node.reps.repMin >= 1 {
 
-            for parAny in recents.parAnys.reversed() {
-                if  let id = parAny.node?.id, id == node.id {
+            for parItem in parRecents.parItems.reversed() {
+                if  let id = parItem.node?.id, id == node.id {
 
-                    let deltaTime = time - parAny.time
-                    let parAny = advancePar(node, words.count, node.pattern, deltaTime)
-                    return ParMatching(parAny,ok: true)
+                    let deltaTime = time - parItem.time
+                    let parItem = advancePar(node, words.count, node.pattern, deltaTime)
+                    return ParMatching(parItem,ok: true)
                 }
             }
         }
@@ -313,8 +261,8 @@ public class ParWords: ParStr {
             for index in starti ..< words.count {
                 if let word = match(index) {
                 
-                    let parAny = advancePar(node,index,word)
-                    return ParMatching(parAny, ok: true)
+                    let parItem = advancePar(node,index,word)
+                    return ParMatching(parItem, ok: true)
                 }
             }
         }
@@ -324,24 +272,24 @@ public class ParWords: ParStr {
             for  index in (0 ..< starti).reversed()  {
                 if let word = match(index) {
 
-                    let parAny = advancePar(node,index,word)
-                    return ParMatching(parAny, ok: true)
+                    let parItem = advancePar(node,index,word)
+                    return ParMatching(parItem, ok: true)
                 }
             }
         }
-        // test non optional recents
-        if recents.parAnys.count > 0,
+        // test unclaimed keywords in short term memory
+        if parRecents.parItems.count > 0,
             node.reps.repMin >= 1 {
 
-            for parAny in recents.parAnys.reversed() {
-                if  let id = parAny.node?.id, id == node.id,
-                    let word = parAny.value,
+            for parItem in parRecents.parItems.reversed() {
+                if  let id = parItem.node?.id, id == node.id,
+                    let word = parItem.value,
                     let regx = node.regx,
                     let _ = matchRegxWord(regx,word) {
 
-                    let deltaTime = time - parAny.time
-                    let parAny = advancePar(node, words.count, word, deltaTime)
-                    return ParMatching(parAny, ok: true)
+                    let deltaTime = time - parItem.time
+                    let parItem = advancePar(node, words.count, word, deltaTime)
+                    return ParMatching(parItem, ok: true)
                 }
             }
         }
