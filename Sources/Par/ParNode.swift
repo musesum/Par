@@ -35,7 +35,7 @@ public class ParNode {
     }
     var parOp = ParOp.quo         // type of operation on parseStr
 
-    public var reps = Repetitions() // number of allowed repetitions to be true
+    public var reps = ParRepetitions() // number of allowed repetitions to be true
     var matchStr: MatchStr?         // call external function to match substring, return any
     var foundCall: ParItemVoid?      // call external function with Found array, when true
     var edgePrevs = [ParEdge]()       // prev edges, sequence is important for maintaining precedence
@@ -86,11 +86,11 @@ public class ParNode {
 
      /// Split a pattern into operation, repetitions, string
      ///
-    func splitPat(_ pat:String) -> (ParOp,Repetitions,String) {
+    func splitPat(_ pat:String) -> (ParOp,ParRepetitions,String) {
         
         // return values
         var op = ParOp.and
-        var rep = Repetitions()
+        var rep = ParRepetitions()
         var str = ""
         
         var count = pat.count
@@ -109,10 +109,10 @@ public class ParNode {
             case "\"": op = .quo ; count -= 1 ; break scanning
             case "'" : op = .rgx ; count -= 1 ; break scanning
                 
-            case "?" : rep = Repetitions(.opt)  ; count -= 1
-            case "*" : rep = Repetitions(.any)  ; count -= 1
-            case "+" : rep = Repetitions(.many) ; count -= 1
-            case "." : rep = Repetitions(.one)  ; count -= 1
+            case "?" : rep = ParRepetitions(.opt)  ; count -= 1
+            case "*" : rep = ParRepetitions(.any)  ; count -= 1
+            case "+" : rep = ParRepetitions(.many) ; count -= 1
+            case "." : rep = ParRepetitions(.one)  ; count -= 1
             default  : break scanning
             }
         }

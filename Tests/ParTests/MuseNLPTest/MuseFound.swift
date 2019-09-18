@@ -23,16 +23,16 @@ public class MuseFound {
     public convenience init (_ str_:String,_ nodeAny_: ParItem!,_ hops_:Int) {
     
         self.init()
-        str    = str_
+        str     = str_
         parItem = nodeAny_
-        hops   = hops_
+        hops    = hops_
     }
 
     public convenience init (_ from: MuseFound) {
         self.init()
-        str    = from.str
+        str     = from.str
         parItem = from.parItem
-        hops   = from.hops
+        hops    = from.hops
     }
 }
 

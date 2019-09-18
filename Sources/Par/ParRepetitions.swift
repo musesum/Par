@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class Repetitions {
+public class ParRepetitions {
     
     enum Count : String { case
         one   = ".",  // {1,1} exactly one
@@ -27,7 +27,7 @@ public class Repetitions {
         updateCount(count_)
     }
 
-    public static func == (lhs: Repetitions, rhs: Repetitions) -> Bool {
+    public static func == (lhs: ParRepetitions, rhs: ParRepetitions) -> Bool {
         return ((lhs.repMin == rhs.repMin) &&
                 (lhs.repMax == rhs.repMax))
     }
