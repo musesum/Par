@@ -1,3 +1,5 @@
 # Par
 
-Island parser for NLP and DSLs
+Parser for NLP and DSLs
+
+[details forthcoming]

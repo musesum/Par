@@ -10,7 +10,6 @@ extension MuseNLP {
 
     func testAndPrintMuseGraph() -> Int {
 
-        print("-------------------------------")
         var err = 0
         if let root = root {
             let script = root.makeScript() //remake script from parse graph
