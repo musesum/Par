@@ -1,6 +1,6 @@
 # Par
 
-Par is a simple parse graph for making
+Par is a simple parse graph for DSLs and NLP
 
     DSLs (domain specific languages), like Tr3
     NLP (chat bots) with flexible word position and closures
@@ -8,9 +8,9 @@ Par is a simple parse graph for making
 with the following features
 
     modified Backus Naur Form (BNF) to define a named parse tree
-        use optional  namespace { } brackets to restrict a sub-parse
+        use optional namespace { } brackets to restrict a sub-parse
         allow runtime recompile of syntax for NLP chat bots
-        idiomatic to Swift syntax
+        somewhat idiomatic to Swift syntax
 
     graph based intermediate representation
         breaks graph loops when resolving namespace
@@ -85,7 +85,7 @@ Closures for Runtime APIs
 
 Imprecise matching
 
-    For NLP, word order may not perfectly match. 
+    For NLP, word order may not perfectly match parse tree order 
     
         So, report number of hops (or Hamming Distance) from ideal
         from ParTests/MuseNLP+Test.swift:

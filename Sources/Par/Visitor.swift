@@ -1,6 +1,4 @@
-//
 //  Visitor.swift
-//  Par
 //
 //  Created by warren on 7/7/17.
 //  Copyright © 2017 Muse Dot Company 

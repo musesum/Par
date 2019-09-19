@@ -1,6 +1,4 @@
-//
-//  Repetitions.swift
-//  Par
+//  ParRepetitions.swift
 //
 //  Created by warren on 7/3/17.
 //  Copyright © 2017 Muse Dot Company

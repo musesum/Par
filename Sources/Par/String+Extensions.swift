@@ -1,6 +1,4 @@
-//
-//  String+.swift
-//  Test
+//  String+Extensions.swift
 //
 //  Created by warren on 6/22/17.
 //  Copyright © 2017 Muse Dot Company

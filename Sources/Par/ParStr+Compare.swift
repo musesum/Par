@@ -1,6 +1,4 @@
-//
 //  ParStr+Compare.swift
-//  Par
 //
 //  Created by warren on 8/7/17.
 //  Copyright © 2017 Muse Dot Company

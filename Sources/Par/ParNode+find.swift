@@ -1,6 +1,4 @@
-//
 //  ParNode+find.swift
-//  Par
 //
 //  Created by warren on 7/27/17.
 //  Copyright © 2017 Muse Dot Company
