@@ -23,13 +23,12 @@ with the following features
     allow imprecise searching
         allow different word orders
             based on minimal hops (hamming distance) from graph
+            
     allow short term memory (STM)
         keep keywords from previous queries
              to complete imprecise matching
         may be adjusted to 0 seconds for computer language parsing
-    future plans
-        merge with functional flow graphs, such Tr3Graph and TensorFlow
-        bottom up restructuring of parse from user queries
+        
 
 Modified BNF
 
@@ -54,23 +53,74 @@ Modified BNF
 
         greetings: cough{,3} (hello | yo+) (big | beautiful)* world?
 
-    support for closures for runtime APIs
+Closures for Runtime APIs
 
-        in the file muse.par is the line
+    in the file muse.par is the line
 
-             events : 'event' eventList()
+        events : 'event' eventList()
 
-        whereupon the source in MuseNLP+test.swift, attaches to eventList()
+    whereupon the source in MuseNLP+test.swift, attaches to eventList()
 
-             root?.setMatch("muse show event eventList()",eventListChecker)
+        root?.setMatch("muse show event eventList()",eventListChecker)
 
-        and attaches a simple callback to extend the lexicon:
+    and attaches a simple callback to extend the lexicon:
 
-            func eventListChecker(_ str:Substring) -> String? {
-                       let ret =  str.hasPrefix("yo") ? "yo" : nil
-                       return ret
-            }
+        func eventListChecker(_ str:Substring) -> String? {
+                let ret =  str.hasPrefix("yo") ? "yo" : nil
+                return ret
+        }
 
-        which in the real world could attach to a dynamic calendar
+    which in the real world could attach to a dynamic calendar
+    
+    here is the output from ParTests/MuseNLP+Test.swift :
+    
+        ⟹ before attaching eventListChecker() - `yo` is unknown
+        "muse show event yo" ⟹ 🚫 failed
+    
+        ⟹ runtime is attaching eventListChecker() callback to eventList()
+        "muse show event eventList()"  ⟹  eventList.924 = (Function)
+    
+        ⟹ now `yo` is now matched during runtime
+        "muse show event yo" ⟹  muse:0 show:0 event:0 yo:0 ⟹ hops:0 ✔︎
+
+Imprecise matching
+
+    For NLP, word order may not perfectly match. 
+    
+        So, report number of hops (or Hamming Distance) from ideal
+        from ParTests/MuseNLP+Test.swift:
+            
+            "muse event show yo" ⟹  muse:0 show:1 event:0 yo:1 ⟹ hops:2 ✔︎
+            "yo muse show event" ⟹  muse:1 show:1 event:2 yo:2 ⟹ hops:6 ✔︎
+            "muse show yo event" ⟹  muse:0 show:0 event:1 yo:0 ⟹ hops:1 ✔︎
+            "muse event yo show" ⟹  muse:0 show:2 event:0 yo:0 ⟹ hops:2 ✔︎
+
+Short term memory 
+
+        For NLP, set a time where words from a previous query continue onto the next query
+        from ParTests/MuseNLP+Test.swift:
         
-to be continued
+            ⟹ with no shortTermMemory, partial matches fail
+            "muse show event yo" ⟹  muse:0 show:0 event:0 yo:0 ⟹ hops:0 ✔︎
+            "muse hide yo" ⟹ 🚫 failed
+            "muse hide event" ⟹ 🚫 failed
+            "hide event" ⟹ 🚫 failed
+            "hide" ⟹ 🚫 failed
+
+            ⟹ after setting ParRecents.shortTermMemory = 8 seconds
+            "muse show event yo" ⟹  muse:0 show:0 event:0 yo:0 ⟹ hops:0 ✔︎
+            "muse hide yo" ⟹  muse:0 show:10 event:10 yo:0 ⟹ hops:20 ✔︎
+            "muse hide event" ⟹  muse:0 show:10 event:1 yo:9 ⟹ hops:20 ✔︎
+            "hide event" ⟹  muse:10 show:9 event:0 yo:8 ⟹ hops:27 ✔︎
+            "hide" ⟹  muse:9 show:8 event:8 yo:9 ⟹ hops:34 ✔︎
+        
+Future
+
+        Par is verically integrated with Tr3 [here](https://github.com/musesum/Tr3)
+            Future version Tr3 may embed Par as node value type
+    
+        bottom up restructuring of parse from user queries
+            Parse tree may be discarded as scaffolding for a parse graph
+            
+                    
+
