@@ -40,8 +40,8 @@ greeting: "hello" "world"
 namespace `{ }` brackets limits the symbols `hello` and `world` to `greeting`.
 ```swift
 greeting : hello world {
-hello : "hello"
-world : "world"
+     hello : "hello"
+     world : "world"
 }
 ```
 double quotes match strings, while
@@ -70,8 +70,8 @@ root?.setMatch("muse show event eventList()",eventListChecker)
 and attaches a simple callback to extend the lexicon:
 ```swift
 func eventListChecker(_ str:Substring) -> String? {
-let ret =  str.hasPrefix("yo") ? "yo" : nil
-return ret
+     let ret =  str.hasPrefix("yo") ? "yo" : nil
+     return ret
 }
 ```
 which in the real world could attach to a dynamic calendar, or any other 3rd party API.
