@@ -81,7 +81,7 @@ Here is the output from ParTests/MuseNLP+Test.swift :
 ⟹ before attaching eventListChecker() - `yo` is unknown
 "muse show event yo" ⟹ 🚫 failed
 
-⟹ runtime is attaching eventListChecker() callback to eventList(
+⟹ runtime is attaching eventListChecker() callback to eventList()
 "muse show event eventList()"  ⟹  eventList.924 = (Function)
 
 ⟹ now `yo` is now matched during runtime
@@ -90,9 +90,9 @@ Here is the output from ParTests/MuseNLP+Test.swift :
 
 #### Imprecise matching
 
-For NLP, word order may not perfectly match parse tree order. So, report number of hops (or Hamming Distance) from ideal
+For NLP, word order may not perfectly match parse tree order. So, report number of hops (or Hamming Distance) from ideal.
 
-from ParTests/MuseNLP+Test.swift:
+Output from ParTests/MuseNLP+Test.swift:
 ```swift
 "muse event show yo" ⟹  muse:0 show:1 event:0 yo:1 ⟹ hops:2 ✔︎
 "yo muse show event" ⟹  muse:1 show:1 event:2 yo:2 ⟹ hops:6 ✔︎
@@ -102,9 +102,9 @@ from ParTests/MuseNLP+Test.swift:
 
 #### Short term memory
 
-For NLP, set a time where words from a previous query continue onto the next query
+For NLP, set a time where words from a previous query continue onto the next query.
 
-from ParTests/MuseNLP+Test.swift:
+Output from ParTests/MuseNLP+Test.swift:
 ```swift
 ⟹ with no shortTermMemory, partial matches fail
 "muse show event yo" ⟹  muse:0 show:0 event:0 yo:0 ⟹ hops:0 ✔︎
@@ -119,6 +119,71 @@ from ParTests/MuseNLP+Test.swift:
 "muse hide event" ⟹  muse:0 show:10 event:1 yo:9 ⟹ hops:20 ✔︎
 "hide event" ⟹  muse:10 show:9 event:0 yo:8 ⟹ hops:27 ✔︎
 "hide" ⟹  muse:9 show:8 event:8 yo:9 ⟹ hops:34 ✔︎
+```
+#### Use Case
+
+Here is a work Par for the function data flow graph, called Tr3: 
+
+```swift
+tr3 : left right* {
+
+    left : comment* (path | name | quote)
+
+    right : (tr3Val | child | many | proto | array | edges | embed | comment)+
+
+    child  :     "{" tr3+ "}"
+    many   : ":" "{" tr3+ "}"
+    proto  : ":" (path | name)
+    tr3Val : ":" value
+
+    value  : (scalar | tuple | quote)
+
+    scalar : ("(" scalar1 ")" | scalar1)
+    scalar1 : (thru | upto | modu | incr | decr | data | dflt) {
+
+        thru : min "..." max ("=" dflt)?
+        upto : min "..<" max ("=" dflt)?
+        modu : "%" max ("=" dflt)?
+        incr : "++"
+        decr : "--"
+        data : "*"
+        min  : num
+        max  : num
+        dflt : num
+    }
+    tuple : "(" (nameNums | names | nums) ")" tupVal? {
+        names    : name{2,}
+        nums     : num{2,}
+        nameNums : (name ":" num){1,}
+        tupVal   : ":" (scalar1 | tuple)
+    }
+    edges : edgeOp (edgePar | edgeItem) comment* {
+
+        edgeOp   : '^([<][-=?!\╌>]+|[-=?!\˚]+[>])'
+        edgePar  : "(" edgeItem+ ")" edges?
+        edgeItem : (edgeVal | ternary) comment*
+
+        edgeVal  :  (path | name) (edges+ | ":" value)?
+
+        ternary  : ("(" tern ")" | tern) {
+
+            tern        : ternIf ternThen ternElse? ternRadio?
+            ternIf      : (path | name) ternCompare?
+            ternThen    : "?" (ternary | path | name | value)
+            ternElse    : ":" (ternary | path | name | value)
+            ternRadio   : "|" ternary
+            ternCompare : compare (path | name | value)
+        }
+    }
+    path    : '^((([A-Za-z_][A-Za-z0-9_]*)*([.˚*])+([A-Za-z_][A-Za-z0-9_.˚*]*)*)+)'
+    name    : '^([A-Za-z_][A-Za-z0-9_]*)'
+    quote   : '^\"([^\"]*)\"'
+    num     : '^([+-]*([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+[.](?![.])|[0-9]+))'
+    array   : '^\:?\[[ ]*([0-9]+)[ ]*\]'
+    comment : '^[/][/][ ]*((.*?)[\r\n]+|^[ \r\n\t]+)'
+    compare : '^[<>!=][=]?'
+    embed   : '^[{][{](?s)(.*?)[}][}]'
+}
 ```
 #### Future
 
