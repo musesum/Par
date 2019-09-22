@@ -16,10 +16,12 @@ extension MuseNLP {
             err = ParStr.testCompare(script,script,echo:true) // should match
             print("-------------------------------")
             print(script)
-            print(" ⟹ What follows is a dump of the graph of the muse script, \n" +
-            "which is sometimes valueable for tracking down the parse details.\n")
+            print(" ⟹ What follows is a dump of the graph of the muse script,\n" +
+            "which is sometimes valueable for tracking down the parse details.\n" +
+            "-----------------------------------------------------------------\n" +
+            "⦙  Predecessor                  Node                    Successors ")
             root.printGraph(Visitor(0)) // print the parse graph
-            print("-------------------------------")
+            print("-----------------------------------------------------------------")
         }
         else {
             err = 1
