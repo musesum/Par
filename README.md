@@ -122,7 +122,7 @@ Output from ParTests/MuseNLP+Test.swift:
 ```
 #### Use Case
 
-Here is a work Par for the function data flow graph, called Tr3: 
+Here is a complete Par definition for the functional data flow graph, called Tr3: 
 
 ```swift
 tr3 : left right* {
