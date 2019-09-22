@@ -126,4 +126,6 @@ Par is vertically integrated with Tr3 [here](https://github.com/musesum/Tr3)
 - Future version Tr3 may embed Par as node value type
 
 Bottom up restructuring of parse from user queries
-- Parse tree may be discarded as scaffolding for a parse graph
+- Parse tree may be discarded in favor of a parse graph
+- Graph built from user queries as prevNode & nextNode edges as n-grams
+- Match queries by assembling nodes middle-out from dictionary of words and n-gram edges
