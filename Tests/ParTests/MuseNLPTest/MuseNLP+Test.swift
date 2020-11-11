@@ -13,7 +13,7 @@ extension MuseNLP {
         var err = 0
         if let root = root {
             let script = root.makeScript() //remake script from parse graph
-            err = ParStr.testCompare(script,script,echo:true) // should match
+            err = ParStr.testCompare(script,script,echo: true) // should match
             print("-------------------------------")
             print(script)
             print(" ⟹ What follows is a dump of the graph of the muse script,\n" +
@@ -31,7 +31,7 @@ extension MuseNLP {
 
     func testScript() -> Int {
 
-        func testPhrase(_ request:String) -> Int {
+        func testPhrase(_ request: String) -> Int {
 
             print("\"\(request)\" ⟹ ", terminator:"")
 
@@ -39,7 +39,7 @@ extension MuseNLP {
 
             if let parItem = root?.findMatch(parWords).parLast {
 
-                let foundString = parItem.foundString(withHops:true)
+                let foundString = parItem.foundString(withHops: true)
                 let totalHops = parItem.totalHops()
                 print("\(foundString) ⟹ hops:\(totalHops) ✔︎")
                 return 0
@@ -50,7 +50,7 @@ extension MuseNLP {
             }
         }
 
-        func eventListChecker(_ str:Substring) -> String? {
+        func eventListChecker(_ str: Substring) -> String? {
             let ret =  str.hasPrefix("yo") ? "yo" : nil
             return ret
         }

@@ -17,7 +17,7 @@ extension ParItem {
         return totalHops
     }
 
-    public func foundString(withHops:Bool = true) -> String {
+    public func foundString(withHops: Bool = true) -> String {
 
         let hasValue = value != nil && value! != ""
         var found = hasValue ? value! : ""

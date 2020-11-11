@@ -18,7 +18,7 @@ public class Visitor {
         visited.insert(id)
     }
 
-    public func newVisit(_ id:Int) -> Bool {
+    public func newVisit(_ id: Int) -> Bool {
         
         if visited.contains(id) {
             return false

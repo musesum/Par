@@ -5,7 +5,7 @@
 import Foundation
 import Par
 
-public enum ActionType : Int { case
+public enum ActionType: Int { case
     unknown,
     calendars,
     events,
@@ -16,11 +16,11 @@ public enum ActionType : Int { case
 
 public class MuseFound {
 
-    public var str    = ""
-    public var parItem : ParItem?
-    public var hops   = -1
+    public var str = ""
+    public var parItem: ParItem?
+    public var hops = -1
 
-    public convenience init (_ str_:String,_ nodeAny_: ParItem!,_ hops_:Int) {
+    public convenience init (_ str_: String,_ nodeAny_: ParItem!,_ hops_: Int) {
     
         self.init()
         str     = str_

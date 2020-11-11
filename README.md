@@ -1,7 +1,5 @@
 # Par
 
-
-
 Par is a simple parse graph for DSLs and NLP
 
 - DSLs (domain specific languages), like Tr3
@@ -39,16 +37,16 @@ greeting: "hello" "world"
 
 namespace `{ }` brackets limits the symbols `hello` and `world` to `greeting`.
 ```swift
-greeting : hello world {
-     hello : "hello"
-     world : "world"
+greeting: hello world {
+     hello: "hello"
+     world: "world"
 }
 ```
 double quotes match strings, while
 single quotes match regular expressions:
 ```swift
-year   : '(19|20)[0-9][0-9]'
-digits : '[0-9]{1,5}'
+year: '(19|20)[0-9][0-9]'
+digits: '[0-9]{1,5}'
 ```
 
 Alternation and repetitions are supported
@@ -60,7 +58,7 @@ greetings: cough{,3} (hello | yo+) (big | beautiful)* world?
 
 in the file muse.par is the line
 ```swift
-events : 'event' eventList()
+events: 'event' eventList()
 ```
 
 whereupon the source in MuseNLP+test.swift, attaches to eventList()
@@ -125,70 +123,70 @@ Output from ParTests/MuseNLP+Test.swift:
 Here is a complete Par definition for the functional data flow graph, called Tr3: 
 
 ```swift
-tr3 : left right* {
+tr3: left right* {
 
-    left : comment* (path | name | quote)
+    left: comment* (path | name | quote)
 
-    right : (tr3Val | child | many | proto | array | edges | embed | comment)+
+    right: (tr3Val | child | many | proto | array | edges | embed | comment)+
 
-    child  :     "{" tr3+ "}"
-    many   : ":" "{" tr3+ "}"
-    proto  : ":" (path | name)
-    tr3Val : ":" value
+    child: "{" tr3+ "}"
+    many: ":" "{" tr3+ "}"
+    proto: ":" (path | name)
+    tr3Val: ":" value
 
-    value  : (scalar | tuple | quote)
+    value: (scalar | tuple | quote)
 
-    scalar : ("(" scalar1 ")" | scalar1)
-    scalar1 : (thru | upto | modu | incr | decr | data | dflt) {
+    scalar: ("(" scalar1 ")" | scalar1)
+    scalar1: (thru | upto | modu | incr | decr | data | dflt) {
 
-        thru : min "..." max ("=" dflt)?
-        upto : min "..<" max ("=" dflt)?
-        modu : "%" max ("=" dflt)?
-        incr : "++"
-        decr : "--"
-        data : "*"
-        min  : num
-        max  : num
-        dflt : num
+        thru: min "..." max ("=" dflt)?
+        upto: min "..<" max ("=" dflt)?
+        modu: "%" max ("=" dflt)?
+        incr: "++"
+        decr: "--"
+        data: "*"
+        min: num
+        max: num
+        dflt: num
     }
-    tuple : "(" (nameNums | names | nums) ")" tupVal? {
-        names    : name{2,}
-        nums     : num{2,}
-        nameNums : (name ":" num){1,}
-        tupVal   : ":" (scalar1 | tuple)
+    tuple: "(" (nameNums | names | nums) ")" tupVal? {
+        names:    name{2,}
+        nums:     num{2,}
+        nameNums: (name ":" num){1,}
+        tupVal: ":" (scalar1 | tuple)
     }
-    edges : edgeOp (edgePar | edgeItem) comment* {
+    edges: edgeOp (edgePar | edgeItem) comment* {
 
-        edgeOp   : '^([<][-=?!\╌>]+|[-=?!\˚]+[>])'
-        edgePar  : "(" edgeItem+ ")" edges?
-        edgeItem : (edgeVal | ternary) comment*
+        edgeOp: '^([<][-=?!\╌>]+|[-=?!\˚]+[>])'
+        edgePar: "(" edgeItem+ ")" edges?
+        edgeItem: (edgeVal | ternary) comment*
 
-        edgeVal  :  (path | name) (edges+ | ":" value)?
+        edgeVal: (path | name) (edges+ | ":" value)?
 
-        ternary  : ("(" tern ")" | tern) {
+        ternary: ("(" tern ")" | tern) {
 
-            tern        : ternIf ternThen ternElse? ternRadio?
-            ternIf      : (path | name) ternCompare?
-            ternThen    : "?" (ternary | path | name | value)
-            ternElse    : ":" (ternary | path | name | value)
-            ternRadio   : "|" ternary
-            ternCompare : compare (path | name | value)
+            tern: ternIf ternThen ternElse? ternRadio?
+            ternIf: (path | name) ternCompare?
+            ternThen: "?" (ternary | path | name | value)
+            ternElse: ":" (ternary | path | name | value)
+            ternRadio: "|" ternary
+            ternCompare: compare (path | name | value)
         }
     }
-    path    : '^((([A-Za-z_][A-Za-z0-9_]*)*([.˚*])+([A-Za-z_][A-Za-z0-9_.˚*]*)*)+)'
-    name    : '^([A-Za-z_][A-Za-z0-9_]*)'
-    quote   : '^\"([^\"]*)\"'
-    num     : '^([+-]*([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+[.](?![.])|[0-9]+))'
-    array   : '^\:?\[[ ]*([0-9]+)[ ]*\]'
-    comment : '^[/][/][ ]*((.*?)[\r\n]+|^[ \r\n\t]+)'
-    compare : '^[<>!=][=]?'
-    embed   : '^[{][{](?s)(.*?)[}][}]'
+    path: '^((([A-Za-z_][A-Za-z0-9_]*)*([.˚*])+([A-Za-z_][A-Za-z0-9_.˚*]*)*)+)'
+    name: '^([A-Za-z_][A-Za-z0-9_]*)'
+    quote: '^\"([^\"]*)\"'
+    num: '^([+-]*([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+[.](?![.])|[0-9]+))'
+    array: '^\:?\[[ ]*([0-9]+)[ ]*\]'
+    comment: '^[/][/][ ]*((.*?)[\r\n]+|^[ \r\n\t]+)'
+    compare: '^[<>!=][=]?'
+    embed: '^[{][{](?s)(.*?)[}][}]'
 }
 ```
 #### Future
 
 Par is vertically integrated with Tr3 [here](https://github.com/musesum/Tr3)
-- Future version Tr3 may embed Par as node value type
+- Future version Tr3 may embed Par as a node value type
 
 Bottom up restructuring of parse from user queries
 - Parse tree may be discarded in favor of a parse graph

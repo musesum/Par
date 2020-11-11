@@ -7,7 +7,7 @@
 import Foundation
 
 public typealias ParItemVoid = (_ parItem: Any) -> Void
-public typealias ParStrMatch = (_ parStr:ParStr, _ level:Int) -> ParMatching?
+public typealias ParStrMatch = (_ parStr: ParStr, _ level: Int) -> ParMatching?
 
 /// A node in a parse graph with prefix and suffix edges.
 public class ParNode {
@@ -24,7 +24,7 @@ public class ParNode {
      /// - rgx: regular expression - true if matches pattern
      /// - quo: quote - true if path matches pattern
      /// - match: function -- false if nil, true when returning a string
-    enum ParOp : String { case
+    enum ParOp: String { case
 
         def   = ":",  // namespace declaration only
         or    = "|",  // of alternate choices, take first match in after[]
@@ -44,17 +44,17 @@ public class ParNode {
     var ignore = false              // node _name has _ prefrefix
     var isName = false              // lValue; name as in `name: what ever`
 
-    func graft(_ node_:ParNode) {
+    func graft(_ node: ParNode) {
         
-        parOp     = node_.parOp
-        matchStr  = node_.matchStr
-        edgePrevs = node_.edgePrevs
-        edgeNexts = node_.edgeNexts
-        regx      = node_.regx
-        ignore    = node_.ignore
+        parOp     = node.parOp
+        matchStr  = node.matchStr
+        edgePrevs = node.edgePrevs
+        edgeNexts = node.edgeNexts
+        regx      = node.regx
+        ignore    = node.ignore
         isName    = true
     }
-    public init (_ pat:String,_ after_:[ParNode]) {
+    public init (_ pat: String,_ after:[ParNode]) {
         
         (parOp,reps,pattern) = splitPat(pat)
         
@@ -63,18 +63,18 @@ public class ParNode {
         default: break
         }
         
-        for node in after_ {
+        for node in after {
             let _ = ParEdge(self,node)
         }
         // top node of hierarchy for explicit declarations in code
-        // which is declared top down, so includes a list of after_ Nodes
+        // which is declared top down, so includes a list of after Nodes
         // ignore while parsing script
         if parOp == .def {
             connectReferences(Visitor(0))
         }
     }
     
-    public init (_ pat:String) {
+    public init (_ pat: String) {
         
         (parOp,reps,pattern) = splitPat(pat)
         
@@ -86,7 +86,7 @@ public class ParNode {
 
      /// Split a pattern into operation, repetitions, string
      ///
-    func splitPat(_ pat:String) -> (ParOp,ParRepetitions,String) {
+    func splitPat(_ pat: String) -> (ParOp,ParRepetitions,String) {
         
         // return values
         var op = ParOp.and
@@ -100,20 +100,20 @@ public class ParNode {
         scanning: for char in pat.reversed() {
             
             switch char {
-            case ":" : op = .def ; count -= 1
-            case "&" : op = .and ; count -= 1
-            case "|" : op = .or  ; count -= 1
+            case ":": op = .def ; count -= 1
+            case "&": op = .and ; count -= 1
+            case "|": op = .or  ; count -= 1
                 
-            case ")" : hasLeftParen = true
-            case "(" : if hasLeftParen { op = .match ; count -= 2 ; break scanning}
+            case ")": hasLeftParen = true
+            case "(": if hasLeftParen { op = .match ; count -= 2 ; break scanning}
             case "\"": op = .quo ; count -= 1 ; break scanning
-            case "'" : op = .rgx ; count -= 1 ; break scanning
+            case "'": op = .rgx ; count -= 1 ; break scanning
                 
-            case "?" : rep = ParRepetitions(.opt)  ; count -= 1
-            case "*" : rep = ParRepetitions(.any)  ; count -= 1
-            case "+" : rep = ParRepetitions(.many) ; count -= 1
-            case "." : rep = ParRepetitions(.one)  ; count -= 1
-            default  : break scanning
+            case "?": rep = ParRepetitions(.opt)  ; count -= 1
+            case "*": rep = ParRepetitions(.any)  ; count -= 1
+            case "+": rep = ParRepetitions(.many) ; count -= 1
+            case ".": rep = ParRepetitions(.one)  ; count -= 1
+            default: break scanning
             }
         }
         
@@ -122,10 +122,10 @@ public class ParNode {
         case .rgx:
             scanning: for char in pat {
                 switch char {
-                case "\\" : starti += 1; count -= 1
-                case "'"  : starti += 1; count -= 1
-                case "_"  : starti += 1; count -= 1; ignore = true
-                default   : break scanning
+                case "\\": starti += 1; count -= 1
+                case "'": starti += 1; count -= 1
+                case "_": starti += 1; count -= 1; ignore = true
+                default: break scanning
                 }
             }
         case .quo: if pat.first == "\"" { starti += 1; count -= 1}; ignore = true

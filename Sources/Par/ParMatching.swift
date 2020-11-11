@@ -30,20 +30,20 @@ public class ParMatching {
         }
     }
 
-    init(_ parItem_:ParItem? = nil, ok ok_: Bool = false ) {
-        if let parItem = parItem_ {
+    init(_ parItem: ParItem? = nil, ok: Bool = false ) {
+        if let parItem = parItem {
             parItems.append(parItem)
         }
-        ok = ok_
+        self.ok = ok
     }
-    init(_ parItems_:[ParItem], ok ok_: Bool = false ) {
-        parItems = parItems_
-        ok = ok_
+    init(_ parItems: [ParItem], ok: Bool = false ) {
+        self.parItems = parItems
+        self.ok = ok
     }
 
 
     /// add a sub ParMatching to this ParMatching
-    func add (_ matching:ParMatching?) -> Bool {
+    func add (_ matching: ParMatching?) -> Bool {
 
         if  let matching = matching,
             let parLast = matching.parLast {
@@ -77,7 +77,7 @@ public class ParMatching {
     }
 
     /// Reduce anys
-    func reduceFound(_ node: ParNode,_ isName:Bool = false) -> ParMatching {
+    func reduceFound(_ node: ParNode,_ isName: Bool = false) -> ParMatching {
         
         if !ok { return ParMatching(nil, ok: false) }
         
@@ -150,10 +150,10 @@ public class ParMatching {
     /// so promote it to the same level as its siblings
     ///
     /// for example, convert:
-    ///     or:(path:show, (path:hide, path:setting, path:clear))
-    /// to  or:(path:show, path:hide, path:setting, path:clear)
+    ///     or:(path: show, (path: hide, path: setting, path: clear))
+    /// to  or:(path: show, path: hide, path: setting, path: clear)
 
-    func promoteNextPars(_ parItem:ParItem) -> [ParItem]? {
+    func promoteNextPars(_ parItem: ParItem) -> [ParItem]? {
         if  parItem.node?.pattern == "",
             parItem.value == nil {
 

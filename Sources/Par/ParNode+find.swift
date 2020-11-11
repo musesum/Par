@@ -9,7 +9,7 @@ import Foundation
 public extension ParNode {
 
     /// return first of alternate choices (boolean or)
-    func testOr(_ parStr:ParStr, level:Int) -> ParMatching {
+    func testOr(_ parStr: ParStr, level: Int) -> ParMatching {
 
         let matching = ParMatching()
 
@@ -21,7 +21,7 @@ public extension ParNode {
 
             if let parItem = edgeNext.nodeNext.findMatch(parStr, level).parLast {
                 if parItem.hops == 0 {
-                    return ParMatching(parItem,ok:true)
+                    return ParMatching(parItem,ok: true)
                 }
                 else {
                     matching.add(parItem)
@@ -40,7 +40,7 @@ public extension ParNode {
     ///
     ///     a: b c { b:"bb", c:"cc" }
     ///
-    func testAnd(_ parStr:ParStr, level:Int) -> ParMatching {
+    func testAnd(_ parStr: ParStr, level: Int) -> ParMatching {
 
         let matching = ParMatching()
 
@@ -62,17 +62,17 @@ public extension ParNode {
     }
 
     /// return result, when parStr.sub matches external function, if it exists
-    func testMatch(_ parStr:ParStr, level:Int) -> ParMatching {
+    func testMatch(_ parStr: ParStr, level: Int) -> ParMatching {
         return parStr.matchMatchStr(self)
     }
 
     /// return empty parItem, when parStr.sub matches pattern
-    func testQuo(_ parStr:ParStr, level:Int) -> ParMatching {
+    func testQuo(_ parStr: ParStr, level: Int) -> ParMatching {
         return parStr.matchQuote(self)
     }
 
     /// return result, when parStr.sub matches regular expression in pattern
-    func testRegx(_ parStr:ParStr, level:Int) -> ParMatching {
+    func testRegx(_ parStr: ParStr, level: Int) -> ParMatching {
         return parStr.matchRegx(self)
     }
 
@@ -83,9 +83,9 @@ public extension ParNode {
     ///     - +: 1 ..< ParEdge.repMax, stop when false
     ///     - { repMin ..< repMax }
     ///
-    internal func forRepeat(_ parStr:ParStr,
+    internal func forRepeat(_ parStr: ParStr,
                             _ level: Int,
-                            _ parStrMatch:ParStrMatch) -> ParMatching {
+                            _ parStrMatch: ParStrMatch) -> ParMatching {
 
         let matching = ParMatching()
 
@@ -114,7 +114,7 @@ public extension ParNode {
     /// - Parameter parStr: sub(string) of input to match
     /// - Parameter level: depth within graph search
     ///
-    func findMatch(_ parStr: ParStr,_ level:Int=0) -> ParMatching {
+    func findMatch(_ parStr: ParStr,_ level: Int=0) -> ParMatching {
 
         let snapshot = parStr.getSnapshot() // push
         var matching = ParMatching()

@@ -5,29 +5,28 @@
 //  License: Apache 2.0 - see License file
 
 // this is not parsed, describes Par.par in the Par.swift file
-par+ : name reps ":" right sub _end {
+par+: name reps ":" right sub _end {
 
-    name  : '^[A-Za-z_]\w*'
+    name: '^[A-Za-z_]\w*'
 
-    reps? : '^([\~]?([\?\+\*]|\{],]?\d+[,]?\d*\})[\~]?)' //
+    reps?: '^([\~]?([\?\+\*]|\{],]?\d+[,]?\d*\})[\~]?)' //
     
-    right+| : (or | any | parens)+  {
+    right+|: (or | and | parens)+  {
 
-        or : and ("|" and)+
+        or: and ("|" and)+
 
-        and+ : leaf reps {
+        and+: leaf reps {
             leaf| {
-                match : '^([A-Za-z_]\w*)\(\)'
-                path  : '^[A-Za-z_][A-Za-z0-9_.]*'
-                quote : '^\"([^\"]*)\"' // skip  \"
-                regex : '^([i_]*\'[^\']+)'
+                match: '^([A-Za-z_]\w*)\(\)'
+                path: '^[A-Za-z_][A-Za-z0-9_.]*'
+                quote: '^\"([^\"]*)\"' // skip  \"
+                regex: '^([i_]*\'[^\']+)'
             }
         }
-        parens? : "(" right ")" reps
+        parens?: "(" right ")" reps
     }
-    sub?  : "{" _end par "}" _end {
-
-        _end? : '[ \\n\\t,]*'
+    sub?: "{" _end par "}" _end {
+        _end?: '[ \\n\\t,]*'
     }
 }
 

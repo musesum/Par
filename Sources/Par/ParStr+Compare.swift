@@ -14,7 +14,7 @@ public extension ParStr {
     /// - parameter script: expected output
     /// - parameter script: actual output
     ///
-    static func testCompare(_ expected:String, _ actual:String, echo:Bool = false) -> Int {
+    static func testCompare(_ expected: String, _ actual: String, echo: Bool = false) -> Int {
         if echo {
             print ("⟹ " + expected, terminator:"")
         }
@@ -31,7 +31,7 @@ public extension ParStr {
         }
     }
     
-    static func compare(_ str1:String,_ str2:String) -> (String,String)? {
+    static func compare(_ str1: String,_ str2: String) -> (String,String)? {
         
         var sub1 = Substring(str1)
         var sub2 = Substring(str2)

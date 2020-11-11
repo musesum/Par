@@ -39,7 +39,7 @@ public extension ParNode {
 
         let opStr =  ( pattern=="" ? parOp.rawValue :
             parOp == .or    ? "|"   :
-            parOp == .match  ? "()"  : ".")
+            parOp == .match  ? "()" : ".")
 
         let repStr = (reps.count == .one ? "" : reps.makeScript()) + (reps.surf ? "~" : "")
 
@@ -75,16 +75,16 @@ public extension ParNode {
     }
 
     /// Space adding for indenting hierarcical list
-    func pad(_ level:Int) -> String {
+    func pad(_ level: Int) -> String {
         let pad = " ".padding(toLength: level*4, withPad: " ", startingAt: 0)
         return pad
     }
 
     ///
-    func makeSuffixs(_ level:Int) -> String {
+    func makeSuffixs(_ level: Int) -> String {
 
         /// And edgeNexts
-        func makeAnd(_ next:ParNode!) -> String {
+        func makeAnd(_ next: ParNode!) -> String {
             
             if next.isName {
                 return next.makeScript(isLeft: false)
@@ -101,8 +101,8 @@ public extension ParNode {
                     // As of xcode 9 beta 3, 
                     if      nodeNext2.parOp == .or    { str += makeOr(nodeNext2) }
                     else if nodeNext2.parOp == .and   { str += makeAnd(nodeNext2) }
-                    else if nodeNext2.parOp == .match { str += nodeNext2.makeScript(level:level) + "()" }
-                    else                          { str += nodeNext2.makeScript(level:level+1) }
+                    else if nodeNext2.parOp == .match { str += nodeNext2.makeScript(level: level) + "()" }
+                    else                          { str += nodeNext2.makeScript(level: level+1) }
                 }
                 del = dels[1]
             }
@@ -111,10 +111,10 @@ public extension ParNode {
         }
         
         /// Alternation suffixes
-        func makeOr(_ next:ParNode!, inner:Bool = false) -> String {
+        func makeOr(_ next: ParNode!, inner: Bool = false) -> String {
 
             var str = "" // return value
-            let dels = inner ? ["", " | ", ""] :  [" (", " | ", ")"]
+            let dels = ["", " | ", ""] // inner ? ["", " | ", ""] :  [" (", " | ", ")"]
             var del = dels[0]
             for next2 in next.edgeNexts {
                 
@@ -122,8 +122,8 @@ public extension ParNode {
                 
                 if let next2Node = next2.nodeNext {
                     if      next2Node.parOp == .and { str += makeAnd(next2Node) }
-                    else if next2Node.parOp == .or  { str += makeOr(next2Node, inner:true) }
-                    else                           { str += next2Node.makeScript(level:level+1) }
+                    else if next2Node.parOp == .or  { str += makeOr(next2Node, inner: true) }
+                    else                           { str += next2Node.makeScript(level: level+1) }
                 }
                 del = dels[1]
             }
@@ -132,11 +132,11 @@ public extension ParNode {
         }
         
         /// Definition
-        func makeDef(_ next:ParNode!) -> String {
+        func makeDef(_ next: ParNode!) -> String {
             
             var str = " {\n" // return value
             for next2 in next.edgeNexts {
-                str += next2.nodeNext.makeScript(level:level+1) + "\n"
+                str += next2.nodeNext.makeScript(level: level+1) + "\n"
             }
             str += pad(level) + "}\n"
             return str
@@ -165,11 +165,11 @@ public extension ParNode {
      The resulting script should resemble the original script.
      - Parameter level: depth of namespace hierarchy, where some isName nodes are local
      */
-    func makeScript(level:Int = 0) -> String {
+    func makeScript(level: Int = 0) -> String {
 
         var str = "" // return value
 
-        if isName { str += pad(level) + makeScript(isLeft: true) + " : " }
+        if isName { str += pad(level) + makeScript(isLeft: true) + " ~ " }
         else      { str +=              makeScript(isLeft: false)  }
         
         str += makeSuffixs(level)
@@ -177,7 +177,7 @@ public extension ParNode {
     }
 
     ///  [par.end.^([ \n\t,;]*|[/][/][^\n]*)]
-    func scriptLineage(_ level:Int) -> String {
+    func scriptLineage(_ level: Int) -> String {
     
         if  let edgePrev = edgePrevs.first, level > 0,
             let nodePrev = edgePrev.nodePrev {

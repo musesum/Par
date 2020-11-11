@@ -19,11 +19,11 @@ public func testParse(_ original_: String,_ expected_: String = "") -> Int {
     let original = original_
     let expected = expected_ == "" ? original : expected_
 
-    if let graph = Par.shared.parse(script:original) {
+    if let graph = Par.shared.parse(script: original) {
 
         // graph.printGraph(Visitor(0))
 
-        let actual = graph.makeScript(level:0)
+        let actual = graph.makeScript(level: 0)
         return ParStr.testCompare(expected, actual)
     }
     else {
@@ -61,16 +61,15 @@ final class ParTests: XCTestCase {
 
     /// Test Tr3 graph parse
     func testTr3() {
-    print("\n------------------------------------")
-    print(" ⟹ What follows a parse of the Tr3 \n" +
-    "Par is vertically integrated with Tr3 so,\n" +
-    "Par should never break Tr3 for major versions.\n")
+        print("\n------------------------------------")
+        print(" ⟹ What follows a parse of the Tr3 \n" +
+            "Par is vertically integrated with Tr3 so,\n" +
+            "Par should never break Tr3 for major versions.\n")
         let err = testParse(Tr3Par)
-    print("------------------------------------")
-    XCTAssertEqual(err,0)
+        print("------------------------------------")
+        XCTAssertEqual(err,0)
     }
 
-    
     static var allTests = [
         ("testBasics", testBasics),
         ("testNLP", testMuseNLP),

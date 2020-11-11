@@ -22,7 +22,7 @@ extension ParItem {
     }
 
     /// reduce strand ParItem to only those that match keywords
-    public func reduce(keywords:[String:Any]) -> [ParItem] {
+    public func reduce(keywords:[String: Any]) -> [ParItem] {
 
         if value != nil { return [self] }
 
@@ -40,7 +40,7 @@ extension ParItem {
         return reduction
     }
 
-    public func reduce1(keywords:[String:Any]) -> ParItem {
+    public func reduce1(keywords:[String: Any]) -> ParItem {
 
         let reduction = reduce(keywords: keywords)
         if reduction.count == 1 {

@@ -1,25 +1,25 @@
- muse : ask (show | hide | setting | clear) {
+ muse: ask (show | hide | setting | clear) {
     
-    ask  : 'muse' 'please'?
-    show : ('show' | 'reveal') type
-    hide : ('hide' | 'remove') type
-    clear : 'clear' type
+    ask: 'muse' 'please'?
+    show: ('show' | 'reveal') type
+    hide: ('hide' | 'remove') type
+    clear: 'clear' type
 
-    type : 'all'? ('alarms' | 'marks' | events | memos) match? {
+    type: 'all'? ('alarms' | 'marks' | events | memos) match? {
 
-        events : 'event' events()
-        memos  : 'memos' memos()
-        match? : ('with' 'keyword' | 'matching')+
+        events: 'event' events()
+        memos: 'memos' memos()
+        match?: ('with' 'keyword' | 'matching')+
    }
 
-    setting : 'set' (speech | debug) onoff {
+    setting: 'set' (speech | debug) onoff {
         
-        speech : ('speaker' | 'speech')
-        debug  : 'debug'
-        onoff  : ('on' | 'off')
+        speech: ('speaker' | 'speech')
+        debug: 'debug'
+        onoff: ('on' | 'off')
     }
 
-    refresh : ('refresh' | 'reset') 'screen'?
+    refresh: ('refresh' | 'reset') 'screen'?
 }
 
 muse {
@@ -35,7 +35,7 @@ muse set speech on
 muse refresh screen
 
 
-menu : calendar | reminders | memos | routine | more {
-    calendars :  Calendars.shared.sourceCals()
+menu: calendar | reminders | memos | routine | more {
+    calendars: Calendars.shared.sourceCals()
     reminders
 }

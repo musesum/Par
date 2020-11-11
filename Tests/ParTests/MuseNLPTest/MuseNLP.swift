@@ -24,7 +24,7 @@ public class MuseNLP {
     let parWords = ParWords("") // search for nearest match on tokenized words in parallel
 
     public init() {
-        root = Par.shared.parse(script:MusePar)
+        root = Par.shared.parse(script: MusePar)
     }
 
     /// Parse string and find match to muse graph
@@ -43,7 +43,7 @@ public class MuseNLP {
         return found
     }
 
-    func parseParItem(_ parItem:ParItem,_ model: MuseModel,_ visitor:Visitor) {
+    func parseParItem(_ parItem: ParItem,_ model: MuseModel,_ visitor: Visitor) {
 
         if let node = parItem.node, !visitor.newVisit(node.id) { return }
 

@@ -16,26 +16,26 @@ public class ParItem {
     public var hops = 0
     var time = TimeInterval(0)
     
-    init (_ node_  : ParNode!,
-          _ value_ : String?,
-          _ hops_  : Int = 0,
-          _ time_  : TimeInterval = 0) {
+    init (_ node: ParNode!,
+          _ value: String?,
+          _ hops: Int = 0,
+          _ time: TimeInterval = 0) {
 
-        node = node_
-        value = value_
-        hops = hops_
-        time = time_
+        self.node = node
+        self.value = value
+        self.hops = hops
+        self.time = time
     }
 
-    init (_ node_  : ParNode!,
-          _ next_  : [ParItem],
-          _ hops_  : Int = 0,
-          _ time_  : TimeInterval = 0) {
+    init (_ node: ParNode!,
+          _ next: [ParItem],
+          _ hops: Int = 0,
+          _ time: TimeInterval = 0) {
 
-        node = node_
-        nextPars = next_
-        hops = hops_
-        time = time_
+        self.node = node
+        self.nextPars = next
+        self.hops = hops
+        self.time = time
     }
 
    /// Search a strand of nodeAnys for the last node
@@ -66,11 +66,11 @@ public class ParItem {
 
         switch nextPars.count {
         case 0: ret += (value != nil ? value! : "")
-        case 1: ret += nextPars[0].makeScript(flat:flat)
+        case 1: ret += nextPars[0].makeScript(flat: flat)
         default:
             var del = "("
             for nextPar in nextPars {
-                ret += del + nextPar.makeScript(flat:flat)
+                ret += del + nextPar.makeScript(flat: flat)
                 del = ", "
             }
             ret += ")"
@@ -78,7 +78,7 @@ public class ParItem {
         return ret
     }
 
-    static func printScript(_ any:Any?) {
+    static func printScript(_ any: Any?) {
 
         switch any {
 

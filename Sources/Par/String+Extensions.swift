@@ -7,13 +7,13 @@
 import Foundation
 
 /// Padding spaces for indentation
-public func pad(_ level:Int) -> String! {
+public func pad(_ level: Int) -> String! {
     let pad = "⦙ " + " ".padding(toLength: level*3, withPad: " ", startingAt: 0)
     return pad
 }
 
 /// Divider to separate listings
-public func divider(_ length:Int = 30) -> String {
+public func divider(_ length: Int = 30) -> String {
     return "\n" + "─".padding(toLength: 30, withPad: "─", startingAt: 0) + "\n"
 }
 
@@ -26,11 +26,11 @@ extension String {
     func substring(from: Int) -> String {
         return self[min(from, count) ..< count]
     }
+
     func substring(from: Int, to: Int) -> String {
         return self[min(from, count) ..< min(to,count)]
     }
 
-    
     func substring(to: Int) -> String {
         return self[0 ..< max(0, to)]
     }
@@ -65,7 +65,7 @@ extension String {
 
         return (prefix,wildcard,suffix)
     }
-    func matches(pre prefix:String,suf suffix:String) -> Bool {
+    func matches(pre prefix: String,suf suffix: String) -> Bool {
         return hasPrefix(prefix) && hasSuffix(suffix)
     }
 
@@ -83,7 +83,7 @@ extension String {
         return trim + trailing
     }
 
-    static public func * (lhs:String, rhs:Int) -> String {
+    static public func * (lhs: String, rhs: Int) -> String {
         var str = ""
         for _ in 0 ..< rhs {
             str += lhs
