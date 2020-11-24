@@ -123,64 +123,62 @@ Output from ParTests/MuseNLP+Test.swift:
 Here is a complete Par definition for the functional data flow graph, called Tr3: 
 
 ```swift
-tr3: left right* {
+tr3 ~ left right* {
 
-    left: comment* (path | name | quote)
+    left ~ (path | name | quote) comment*
 
-    right: (tr3Val | child | many | proto | array | edges | embed | comment)+
+    right ~ (array | tr3Val | child | many | copy | array | edges | embed)+ comment*
 
-    child: "{" tr3+ "}"
-    many: ":" "{" tr3+ "}"
-    proto: ":" (path | name)
-    tr3Val: ":" value
+    tr3Val ~ value
+    child ~ "{" comment* tr3+ "}"
+    many ~ "." "{" tr3+ "}"
+    copy ~ "©" (path | name)
+    array ~ "[" thru "]"
 
-    value: (scalar | tuple | quote)
-
-    scalar: ("(" scalar1 ")" | scalar1)
-    scalar1: (thru | upto | modu | incr | decr | data | dflt) {
-
-        thru: min "..." max ("=" dflt)?
-        upto: min "..<" max ("=" dflt)?
-        modu: "%" max ("=" dflt)?
-        incr: "++"
-        decr: "--"
-        data: "*"
-        min: num
-        max: num
-        dflt: num
+    value ~ (scalar | tuple | quote)
+    scalar ~ "(" scalar1 ")"
+    scalar1 ~ thru | modu | incr | decr | data | dflt {
+        thru ~ min ".." max eqDflt?
+        modu ~ "%" max eqDflt?
+        incr ~ "++"
+        decr ~ "--"
+        data ~ "*"
+        min ~ num
+        max ~ num
+        dflt ~ num
+        eqDflt ~ "=" dflt
     }
-    tuple: "(" (nameNums | names | nums) ")" tupVal? {
-        names:    name{2,}
-        nums:     num{2,}
-        nameNums: (name ":" num){1,}
-        tupVal: ":" (scalar1 | tuple)
+    tuple ~ "(" tupVal ")" {
+        names ~ name (","? name)+
+        scalars ~ scalar1 (","? scalar1)+
+        nameScalars ~ name scalar1 (","? name scalar1)*
+        tupVal ~ (nameScalars | names | scalars)
     }
-    edges: edgeOp (edgePar | edgeItem) comment* {
+    edges ~ edgeOp (edgePar | edgeItem) comment* {
 
-        edgeOp: '^([<][-=?!\╌>]+|[-=?!\˚]+[>])'
-        edgePar: "(" edgeItem+ ")" edges?
-        edgeItem: (edgeVal | ternary) comment*
+        edgeOp ~ '^([<][<?!\╌>]+|[?!>]+[>])'
+        edgePar ~ "(" edgeItem+ ")" edges?
+        edgeItem ~ (edgeVal | ternary) comment*
 
-        edgeVal: (path | name) (edges+ | ":" value)?
+        edgeVal ~ (path | name) (edges+ | value)?
 
-        ternary: ("(" tern ")" | tern) {
-
-            tern: ternIf ternThen ternElse? ternRadio?
-            ternIf: (path | name) ternCompare?
-            ternThen: "?" (ternary | path | name | value)
-            ternElse: ":" (ternary | path | name | value)
-            ternRadio: "|" ternary
-            ternCompare: compare (path | name | value)
+        ternary ~ "(" tern ")" {
+            tern ~ ternIf ternThen ternElse? ternRadio?
+            ternIf ~ (path | name) ternCompare?
+            ternThen ~ "?" (ternary | path | name | scalar1 | tuple | quote)
+            ternElse ~ ":" (ternary | path | name | scalar1 | tuple | quote)
+            ternCompare ~ compare (path | name | scalar1 | tuple | quote)
+            ternRadio ~ "|" ternary
         }
     }
-    path: '^((([A-Za-z_][A-Za-z0-9_]*)*([.˚*])+([A-Za-z_][A-Za-z0-9_.˚*]*)*)+)'
-    name: '^([A-Za-z_][A-Za-z0-9_]*)'
-    quote: '^\"([^\"]*)\"'
-    num: '^([+-]*([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+[.](?![.])|[0-9]+))'
-    array: '^\:?\[[ ]*([0-9]+)[ ]*\]'
-    comment: '^[/][/][ ]*((.*?)[\r\n]+|^[ \r\n\t]+)'
-    compare: '^[<>!=][=]?'
-    embed: '^[{][{](?s)(.*?)[}][}]'
+    path ~ '^((([A-Za-z_][A-Za-z0-9_]*)*([.˚*])+([A-Za-z_][A-Za-z0-9_.˚*]*)*)+)'
+    name ~ '^([A-Za-z_][A-Za-z0-9_]*)'
+    quote ~ '^\"([^\"]*)\"'
+    num ~ '^([+-]*([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+[.](?![.])|[0-9]+)([e][+-][0-9]+)?)'
+    array ~ '^\:?\[[ ]*([0-9]+)[ ]*\]'
+    comment ~ '^[,]|^[/][/][ ]*((.*?)[\r\n]+|^[ \r\n\t]+)'
+    compare ~ '^[<>!=][=]?'
+    embed ~ '^[{][{](?s)(.*?)[}][}]'
 }
 ```
 #### Future

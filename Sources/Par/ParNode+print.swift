@@ -99,10 +99,10 @@ public extension ParNode {
                 
                 if let nodeNext2 = nextSuffix.nodeNext {
                     // As of xcode 9 beta 3, 
-                    if      nodeNext2.parOp == .or    { str += makeOr(nodeNext2) }
+                    if      nodeNext2.parOp == .or    { str += makeOr(nodeNext2, inner: false) }
                     else if nodeNext2.parOp == .and   { str += makeAnd(nodeNext2) }
                     else if nodeNext2.parOp == .match { str += nodeNext2.makeScript(level: level) + "()" }
-                    else                          { str += nodeNext2.makeScript(level: level+1) }
+                    else                              { str += nodeNext2.makeScript(level: level+1) }
                 }
                 del = dels[1]
             }
@@ -111,10 +111,10 @@ public extension ParNode {
         }
         
         /// Alternation suffixes
-        func makeOr(_ next: ParNode!, inner: Bool = false) -> String {
+        func makeOr(_ next: ParNode!, inner: Bool) -> String {
 
             var str = "" // return value
-            let dels = ["", " | ", ""] // inner ? ["", " | ", ""] :  [" (", " | ", ")"]
+            let dels = inner ? ["", " | ", ""] :  [" (", " | ", ")"]
             var del = dels[0]
             for next2 in next.edgeNexts {
                 
@@ -123,7 +123,7 @@ public extension ParNode {
                 if let next2Node = next2.nodeNext {
                     if      next2Node.parOp == .and { str += makeAnd(next2Node) }
                     else if next2Node.parOp == .or  { str += makeOr(next2Node, inner: true) }
-                    else                           { str += next2Node.makeScript(level: level+1) }
+                    else                            { str += next2Node.makeScript(level: level+1) }
                 }
                 del = dels[1]
             }
@@ -143,14 +143,26 @@ public extension ParNode {
         }
         
         // ────────────── begin ──────────────
-        
+
+        // test for a ~ b | c | d
+        var onlyOrs = true
+        testOrs: for edgeNext in edgeNexts {
+            switch edgeNext.nodeNext.parOp {
+                case .or, .def:
+                    continue
+                default:
+                // otherwise a ~ b (c | d)
+                onlyOrs = false
+                break testOrs
+            }
+        }
         var str = ""
         for edgeNext in edgeNexts {
             
             if let next = edgeNext.nodeNext {
                switch next.parOp {
                 case .and:   str += makeAnd(next)
-                case .or:    str += makeOr(next)
+                case .or:    str += makeOr(next, inner: onlyOrs)
                 case .def:   str += makeDef(next)
                 case .match: str += next.makeScript(isLeft: false) + "() "
                 default:     str += next.makeScript(isLeft: false) + " "

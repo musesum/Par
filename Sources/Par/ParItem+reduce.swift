@@ -22,14 +22,47 @@ extension ParItem {
     }
 
     /// reduce strand ParItem to only those that match keywords
-    public func reduce(keywords:[String: Any]) -> [ParItem] {
+    public func reduce(_ keywords: [String: Any]) -> [ParItem] {
+
+        /// regular expression
+        func isRgx(_ node: ParNode) -> Bool {
+            if node.parOp == .rgx { return true }
+            if node.edgeNexts.count == 1,
+               let first = node.edgeNexts.first {
+                return isRgx(first.nodeNext)
+            }
+            return false
+        }
+        func isEmptyRgx() -> Bool {
+            if nextPars.count == 0,
+               node?.reps.repMin == 0 {
+
+                if nextPars.first?.value == nil,
+                   let node = node,
+                   isRgx(node) {
+
+                    if node.pattern == "comment" {
+                        print(".", terminator: "")
+                    } else {
+                        print("?", terminator: "")
+                    }
+                    print("-", terminator: "")
+                    return true
+                }
+            }
+            return false
+        }
+        // begin ---------------------------
 
         if value != nil { return [self] }
 
         var reduction = [ParItem]()
 
+        if isEmptyRgx() {
+            return reduction
+        }
         for nexti in nextPars {
-            let reduced = nexti.reduce(keywords: keywords)
+            let reduced = nexti.reduce(keywords)
             reduction.append(contentsOf: reduced)
         }
         // self's node is a keyword, so keep it
@@ -40,9 +73,9 @@ extension ParItem {
         return reduction
     }
 
-    public func reduce1(keywords:[String: Any]) -> ParItem {
+    public func reduceStart(_ keywords: [String: Any]) -> ParItem {
 
-        let reduction = reduce(keywords: keywords)
+        let reduction = reduce(keywords)
         if reduction.count == 1 {
             return reduction[0]
         }

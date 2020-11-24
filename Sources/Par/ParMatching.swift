@@ -32,15 +32,21 @@ public class ParMatching {
 
     init(_ parItem: ParItem? = nil, ok: Bool = false ) {
         if let parItem = parItem {
+
+            if parItem.nextPars.isEmpty,
+               parItem.node?.reps.repMin == 0 {
+
+                //?? print("-", terminator: "")
+            }
+            self.ok = ok
             parItems.append(parItem)
         }
-        self.ok = ok
     }
+
     init(_ parItems: [ParItem], ok: Bool = false ) {
         self.parItems = parItems
         self.ok = ok
     }
-
 
     /// add a sub ParMatching to this ParMatching
     func add (_ matching: ParMatching?) -> Bool {
@@ -83,7 +89,10 @@ public class ParMatching {
         
         switch parItems.count {
 
-        case 0: return ParMatching(ParItem(node,nil), ok: true)
+        case 0:
+            let item = ParItem(node, nil)
+            let matching = ParMatching(item, ok: true)
+            return matching
 
         case 1:
             if  let parFirst = parItems.first,
@@ -95,9 +104,8 @@ public class ParMatching {
 
                     if isName, parNode.id != node.id {
                         return ParMatching(ParItem(node,[parFirst]), ok: true)
-                    }
-                    else {
-                         return ParMatching(parFirst, ok: true)
+                    } else {
+                        return ParMatching(parFirst, ok: true)
                     }
                 case .match:
 
@@ -105,10 +113,11 @@ public class ParMatching {
 
                 case .quo,.rgx:
 
-                    return ParMatching(ParItem(node, parFirst.value, parFirst.hops), ok: true)
+                    let item = ParItem(node, parFirst.value, parFirst.hops)
+                    let matching = ParMatching(item, ok: true)
+                    return matching
                 }
             }
-
         default: break
         }
 

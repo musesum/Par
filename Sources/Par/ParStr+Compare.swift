@@ -33,8 +33,8 @@ public extension ParStr {
     
     static func compare(_ str1: String,_ str2: String) -> (String,String)? {
         
-        var sub1 = Substring(str1)
-        var sub2 = Substring(str2)
+        let sub1 = Substring(str1)
+        let sub2 = Substring(str2)
         var i1 = sub1.startIndex
         var i2 = sub2.startIndex
         

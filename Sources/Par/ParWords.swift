@@ -10,8 +10,8 @@ import Foundation
 public class ParWords: ParStr {
 
     var parRecents = ParRecents()
-    var words : [Substring]!
-    var found : [Int]! // index of found
+    var words: [Substring]!
+    var found: [Int]! // index of found
     var starti = 0 // where to start searching
     var count = 0
     var time = TimeInterval(0)
@@ -40,7 +40,7 @@ public class ParWords: ParStr {
         var count: Int
         var starti: Int
         var foundi: Int
-        init(_ ps:ParWords) {
+        init(_ ps: ParWords) {
             sub = ps.sub
             count = ps.count
             starti = ps.starti
@@ -52,7 +52,7 @@ public class ParWords: ParStr {
         return ParSnapshot(self)
     }
 
-    override func putSnapshot(_ any:Any!) {
+    override func putSnapshot(_ any: Any!) {
         if let snapshot = any as? ParSnapshot {
             sub = snapshot.sub
             count = snapshot.count
@@ -70,7 +70,7 @@ public class ParWords: ParStr {
 
     /// Advance past match and return parItem with number of hops from normal sequence.
     /// - note: extension of ParStr, for a set of words match in parallel. Only use on a short phrase.
-    func advancePar(_ node:ParNode!, _ index:Int, _ str: String!,_ deltaTime:TimeInterval = 0) -> ParItem? {
+    func advancePar(_ node: ParNode!, _ index: Int, _ str: String!,_ deltaTime: TimeInterval = 0) -> ParItem? {
 
         /// matching a recent query is treated as a last resort, which is insured by adding cuttoff time for short term memory
         let penaltyHops = deltaTime > 0 ? Int(deltaTime + ParRecents.shortTermMemory) : 0
@@ -106,7 +106,7 @@ public class ParWords: ParStr {
 
     /// match a quoted string and advance past match
     /// - note: extension of ParStr, for a set of words match in parallel. Only use on a short phrase.
-    override func matchMatchStr(_ node:ParNode!) -> ParMatching {
+    override func matchMatchStr(_ node: ParNode!) -> ParMatching {
 
         func match(_ i: Int) -> String! {
             let word = words[i]
@@ -152,7 +152,7 @@ public class ParWords: ParStr {
 
     /// match a quoted string and advance past match
     /// - note: extension of ParStr, for a set of words match in parallel. Only use on a short phrase.
-    override func matchQuote(_ node:ParNode!, withEmpty:Bool=false) -> ParMatching {
+    override func matchQuote(_ node: ParNode!, withEmpty: Bool=false) -> ParMatching {
 
         func match(_ i: Int) -> Bool {
             let word = words[i]
@@ -176,7 +176,7 @@ public class ParWords: ParStr {
             for index in starti ..< words.count {
                 if match(index) {
                     let parItem = advancePar(node,index,node.pattern)
-                    return ParMatching(parItem,ok:true)
+                    return ParMatching(parItem,ok: true)
                 }
             }
         }
@@ -213,7 +213,7 @@ public class ParWords: ParStr {
     func matchRegxWord(_ regx: NSRegularExpression, _ word: Substring) -> RangeRegx! {
 
         let nsRange = NSRange( word.startIndex ..< word.endIndex, in: str)
-        let match = regx.matches(in: str, options:[], range:nsRange)
+        let match = regx.matches(in: str, options:[], range: nsRange)
         if match.count == 0 { return nil }
         switch match[0].numberOfRanges {
         case 1:  return RangeRegx(match[0].range(at: 0), match[0].range(at: 0), str)
@@ -227,7 +227,7 @@ public class ParWords: ParStr {
     func matchRegxWord(_ regx: NSRegularExpression, _ word: String) -> RangeRegx? {
 
         let nsRange = NSRange( word.startIndex ..< word.endIndex, in: word)
-        let match = regx.matches(in: word, options:[], range:nsRange)
+        let match = regx.matches(in: word, options:[], range: nsRange)
         if match.count == 0 { return nil }
         switch match[0].numberOfRanges {
         case 1:  return RangeRegx(match[0].range(at: 0), match[0].range(at: 0), word)
@@ -246,8 +246,9 @@ public class ParWords: ParStr {
         func match(_ i: Int) -> String? {
             let word = words[i]
             if  let regx = node.regx,
-                let rangeRegx = matchRegxWord(regx,word) {
-                let result = String(str[rangeRegx.matching])
+                let rangeRegx = matchRegxWord(regx,word),
+                let matching = rangeRegx.matching {
+                let result = String(str[matching])
                 return result
             }
             else {

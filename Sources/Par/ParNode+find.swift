@@ -103,17 +103,19 @@ public extension ParNode {
         return matching.reduceFound(self,isName)
     }
 
-    /// Search for pattern matches in substring with by transversing graph of nodes, with behavior:
-    ///
-    /// - or - alternation find first match
-    /// - and - all suffixes must match
-    /// - match - external function
-    /// - quo - quoted string
-    /// - rgx - regular expression
-    ///
-    /// - Parameter parStr: sub(string) of input to match
-    /// - Parameter level: depth within graph search
-    ///
+    /**
+     Search for pattern matches in substring with by transversing graph of nodes, with behavior:
+
+     - or - alternation find first match
+     - and - all suffixes must match
+     - match - external function
+     - quo - quoted string
+     - rgx - regular expression
+
+     - Parameters:
+        - parStr: sub(string) of input to match
+        - level: depth within graph search
+    */
     func findMatch(_ parStr: ParStr,_ level: Int=0) -> ParMatching {
 
         let snapshot = parStr.getSnapshot() // push
@@ -132,7 +134,7 @@ public extension ParNode {
 
         if let parItem = matching.parLast {
             foundCall?(parItem)
-            parStr.trace(self,parItem,level)
+            parStr.trace(self, parItem, level)
         }
         else {
             parStr.putSnapshot(snapshot) // pop

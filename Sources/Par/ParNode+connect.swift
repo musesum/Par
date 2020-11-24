@@ -9,8 +9,9 @@ public extension ParNode {
     /**
      Search self, then before's afters, before's before's afters, etc.
      
-     - Parameter name: name of node to find
-     - Parameter visitor: track nodes already visited to break loops
+     - Parameters:
+        - name: name of node to find
+        - visitor: track nodes already visited to break loops
      */
     func findLeft(_ name: String!, _ visitor: Visitor) -> ParNode! {
 

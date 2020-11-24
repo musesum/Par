@@ -10,6 +10,7 @@ import Foundation
 public class ParStr {
     
     public static var tracing = false
+
     public var whitespace = "\t "
     public var str = ""     // original string
     var sub = Substring()   // a substring of str, updated during parse
@@ -139,11 +140,11 @@ public class ParStr {
     
     /// result range for regular expression
     struct RangeRegx {
-        var matching: Range<String.Index>
-        var advance: Range<String.Index>
-        init(_ matching_: NSRange, _ advance_: NSRange,_ str: String!) {
-            matching = Range(matching_, in: str)!
-            advance = Range(advance_, in: str)!
+        var matching: Range<String.Index>?
+        var advance: Range<String.Index>?
+        init(_ matching_: NSRange, _ advance_: NSRange, _ str: String!) {
+            matching = Range(matching_, in: str)
+            advance = Range(advance_, in: str)
         }
     }
     
@@ -151,14 +152,22 @@ public class ParStr {
     ///
     /// - parameter regx: compiled regular expression
     /// - returns: ranges of inner value and outer match, or nil
-    func matchRegx(_ regx: NSRegularExpression) -> RangeRegx! {
+    func matchRegx(_ regx: NSRegularExpression) -> RangeRegx? {
         
         let nsRange = NSRange( sub.startIndex ..< sub.endIndex, in: str)
         let match = regx.matches(in: str, options:[.anchored], range: nsRange)
         if match.count == 0 { return nil }
+        let range0 = match[0].range(at: 0)
         switch match[0].numberOfRanges {
-            case 1:  return RangeRegx(match[0].range(at: 0), match[0].range(at: 0), str)
-            default: return RangeRegx(match[0].range(at: 1), match[0].range(at: 0), str)
+            case 1:
+                return RangeRegx(range0, range0, str)
+            default:
+                let range1 = match[0].range(at: 1)
+                if range1.length > 0 {
+                    return RangeRegx(range1, range0, str)
+                } else {
+                    return RangeRegx(range0, range0, str)
+                }
         }
     }
     
@@ -187,9 +196,11 @@ public class ParStr {
     func matchRegx(_ node: ParNode) -> ParMatching {
         
         if  let regx = node.regx,
-            let rangeRegx = matchRegx(regx) {
+            let rangeRegx = matchRegx(regx),
+            let advance = rangeRegx.advance,
+            let matching = rangeRegx.matching {
             
-            let upperIndex =  rangeRegx.advance.upperBound
+            let upperIndex =  advance.upperBound
             
             sub = upperIndex < sub.endIndex
                 ? sub[upperIndex ..< sub.endIndex]
@@ -197,27 +208,39 @@ public class ParStr {
             
             advancePastChars(whitespace)
             
-            let result = String(str[rangeRegx.matching])
+            let result = String(str[matching])
             let parItem = ParItem(node,result)
             return ParMatching(parItem, ok: true)
         }
         return ParMatching(nil, ok: false)
     }
     
-    func trace(_ node: ParNode!, _ any: Any?, _ level: Int) {
+    func trace(_ node: ParNode?, _ any: Any?, _ level: Int) {
         
         // ignore if not tracing
         if !ParStr.tracing { return }
-        
+
+        func getName(_ node: ParNode) -> String? {
+             let suffix =  node.isName ?  node.pattern : ""
+
+            if let prevNode = node.edgePrevs.first?.nodePrev,
+               let name = getName(prevNode) {
+                return suffix.isEmpty ? name : name + "." + suffix
+            }
+            return suffix
+        }
+
         // add a value if there is one
         if let parItem = any as? ParItem,
-            let parValue = parItem.value {
+            let parValue = parItem.value,
+            let node = node {
             // indent predecessors based on level
             let pad = " ".padding(toLength: level*2, withPad: " ", startingAt: 0)
             let slice = ParStr.makeSlice(sub) + pad
             let reps = node.reps.makeScript()
             let val = parValue.replacingOccurrences(of: "\n", with: "")
-            print( slice + node.pattern + ".\(node.id) \(reps) \(val)")
+            let title = getName(node) ?? node.pattern
+            print(slice + " \(title).\(node.id) \(reps) \(val)")
         }
     }
     

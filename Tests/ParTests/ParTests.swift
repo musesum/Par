@@ -41,12 +41,14 @@ final class ParTests: XCTestCase {
         var err = 0 // error count
         //let _ = testParse(Bug1Par) //🚫bug! single rvalue `ask`
         //let _ = testParse(Bug2Par) //🚫bug! double ((...) ...)
+        
         err += testParse(Namespace1Par)
         err += testParse(Namespace2Par)
         err += testParse(CardinalPar)
         err += testParse(MultiGroupPar)
         err += testParse(MusePar)
         err += testParse(RoutinePar,RoutineParOut)
+        err += testParse(MediaParAndOr,MediaParAndOr)
         err += testParse(MediaPar,MediaParOut)
 
         XCTAssertEqual(err,0)
