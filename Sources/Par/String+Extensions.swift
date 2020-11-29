@@ -75,6 +75,14 @@ extension String {
         if last == " " { return "" }
         else           { return " "}
     }
+    /// add a space if last character is not a space of left paren
+    public mutating func plus(_ add: String?) {
+        guard let add = add else { return }
+        if      add == ","  { self = without(trailing: " ") + add }
+        else if last == "(" { self += add }
+        else if last == " " { self += add }
+        else                { self = with(trailing: " ") + add }
+    }
     /// remove trailing spaces before adding character.
     /// often used to insure a single trailing space, instead of two.
     public func with(trailing: String) -> String {
@@ -82,6 +90,14 @@ extension String {
         while trim.last == " " { trim.removeLast() }
         return trim + trailing
     }
+    /// remove trailing spaces 
+    /// often used to insure a single trailing space, instead of two.
+    public func without(trailing: String) -> String {
+        var trim = self
+        while trim.last == " " { trim.removeLast() }
+        return trim 
+    }
+
 
     static public func * (lhs: String, rhs: Int) -> String {
         var str = ""

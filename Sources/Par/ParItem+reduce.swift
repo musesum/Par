@@ -40,13 +40,6 @@ extension ParItem {
                 if nextPars.first?.value == nil,
                    let node = node,
                    isRgx(node) {
-
-                    if node.pattern == "comment" {
-                        print(".", terminator: "")
-                    } else {
-                        print("?", terminator: "")
-                    }
-                    print("-", terminator: "")
                     return true
                 }
             }

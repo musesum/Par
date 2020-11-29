@@ -31,7 +31,7 @@ public extension ParStr {
         }
     }
     
-    static func compare(_ str1: String,_ str2: String) -> (String,String)? {
+    static func compare(_ str1: String,_ str2: String, removeComments: Bool = false) -> (String,String)? {
         
         let sub1 = Substring(str1)
         let sub2 = Substring(str2)
@@ -40,24 +40,25 @@ public extension ParStr {
         
         // advance i1,i2 indexes past whitespace and/or comments
         func eatWhitespace() {
-            
-            var hasComment = false
-            
+                        
             while i1 < sub1.endIndex && "\n\t ".contains(sub1[i1]) { i1 = sub1.index(after: i1) }
             while i2 < sub2.endIndex && "\n\t ".contains(sub2[i2]) { i2 = sub2.index(after: i2) }
-            
-            // remove comments
-            if sub1[i1 ..< sub1.endIndex].hasPrefix("//") {
-                while i1 < sub1.endIndex && "\n" != str1[i1] { i1 = sub1.index(after: i1) }
-                hasComment = true
-            }
-            if sub2[i2 ..< sub2.endIndex].hasPrefix("//") {
-                while i2 < sub2.endIndex && "\n" != str2[i2] { i2 = sub2.index(after: i2) }
-                hasComment = true
-            }
-            if hasComment {
-                // remove trailing whitespace and/or multi-line comments
-                eatWhitespace()
+
+            if removeComments {
+                var hasComment = false
+                // remove comments
+                if sub1[i1 ..< sub1.endIndex].hasPrefix("//") {
+                    while i1 < sub1.endIndex && "\n" != str1[i1] { i1 = sub1.index(after: i1) }
+                    hasComment = true
+                }
+                if sub2[i2 ..< sub2.endIndex].hasPrefix("//") {
+                    while i2 < sub2.endIndex && "\n" != str2[i2] { i2 = sub2.index(after: i2) }
+                    hasComment = true
+                }
+                if hasComment {
+                    // remove trailing whitespace and/or multi-line comments
+                    eatWhitespace()
+                }
             }
         }
         
