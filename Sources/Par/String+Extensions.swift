@@ -75,7 +75,7 @@ extension String {
         if last == " " { return "" }
         else           { return " "}
     }
-    /// add a space if last character is not a space of left paren
+    /// append string to self with spacing
     public mutating func plus(_ add: String?) {
         guard let add = add else { return }
         if      add == ","  { self = without(trailing: " ") + add }
