@@ -32,33 +32,33 @@ allow short term memory (STM)
 
 Here is the ubiquitous Hello World
 ```swift
-greeting: "hello" "world"
+greeting ~ "hello" "world"
 ```
 
 namespace `{ }` brackets limits the symbols `hello` and `world` to `greeting`.
 ```swift
-greeting: hello world {
-     hello: "hello"
-     world: "world"
+greeting ~ hello world {
+     hello ~ "hello"
+     world ~ "world"
 }
 ```
 double quotes match strings, while
 single quotes match regular expressions:
 ```swift
-year: '(19|20)[0-9][0-9]'
-digits: '[0-9]{1,5}'
+year ~ '(19|20)[0-9][0-9]'
+digits ~ '[0-9]{1,5}'
 ```
 
 Alternation and repetitions are supported
 ```c
-greetings: cough{,3} (hello | yo+) (big | beautiful)* world?
+greetings ~ cough{,3} (hello | yo+) (big | beautiful)* world?
 ```
 
 #### Closures for Runtime APIs
 
 in the file muse.par is the line
 ```swift
-events: 'event' eventList()
+events ~ 'event' eventList()
 ```
 
 whereupon the source in MuseNLP+test.swift, attaches to eventList()
@@ -67,7 +67,7 @@ root?.setMatch("muse show event eventList()",eventListChecker)
 ```
 and attaches a simple callback to extend the lexicon:
 ```swift
-func eventListChecker(_ str:Substring) -> String? {
+func eventListChecker(_ str: Substring) -> String? {
      let ret =  str.hasPrefix("yo") ? "yo" : nil
      return ret
 }
@@ -119,23 +119,47 @@ Output from ParTests/MuseNLP+Test.swift:
 "hide" ⟹  muse:9 show:8 event:8 yo:9 ⟹ hops:34 ✔︎
 ```
 #### Use Case
+Here is the Par definition in the Par format:
 
+```swift
+par ~ name "~" right+ sub? end_ {
+    name ~ '^[A-Za-z_]\w*'
+    right ~ or_ | and_ | paren {
+        or_ ~ and_ orAnd+ {
+            orAnd ~ "|" and_
+        }
+        and_ ~ leaf reps? {
+            leaf ~ match | path | quote | regex {
+            match ~ '^([A-Za-z_]\w*)\(\)'
+            path ~ '^[A-Za-z_][A-Za-z0-9_.]*'
+            quote ~ '^\"([^\"]*)\"' // skip  \"
+            regex ~ '^([i_]*\'[^\']+)'
+            }
+        }
+        parens ~ "(" right ")" reps
+    }
+    sub ~ "{" end_ par "}" end_?
+    end_ ~ '[ \\n\\t,]*'
+    reps ~ '^([\~]?([\?\+\*]|\{],]?\d+[,]?\d*\})[\~]?)'
+}
+```
 Here is a complete Par definition for the functional data flow graph, called Tr3: 
 
 ```swift
 tr3 ~ left right* {
 
-    left ~ (path | name | quote) comment*
+    left ~ (path | name | quote) 
 
-    right ~ (array | tr3Val | child | many | copy | array | edges | embed)+ comment*
+    right ~ (tr3Val | child | many | copier | array | edges | embed | comment)+
 
     tr3Val ~ value
     child ~ "{" comment* tr3+ "}"
     many ~ "." "{" tr3+ "}"
-    copy ~ "©" (path | name)
+    copier ~ "©" (path | name)
     array ~ "[" thru "]"
 
-    value ~ (scalar | tuple | quote)
+    value ~ scalar | tuple | quote
+    value1 ~ scalar1 | tuple | quote
     scalar ~ "(" scalar1 ")"
     scalar1 ~ thru | modu | incr | decr | data | dflt {
         thru ~ min ".." max eqDflt?
@@ -152,22 +176,22 @@ tr3 ~ left right* {
         names ~ name (","? name)+
         scalars ~ scalar1 (","? scalar1)+
         nameScalars ~ name scalar1 (","? name scalar1)*
-        tupVal ~ (nameScalars | names | scalars)
+        tupVal ~ nameScalars | names | scalars
     }
     edges ~ edgeOp (edgePar | edgeItem) comment* {
 
-        edgeOp ~ '^([<][<?!\╌>]+|[?!>]+[>])'
+        edgeOp ~ '^([<][<⋯!©ⓝⓒ\=\╌>]+|[⋯!©ⓝⓒ\=\╌>]+[>])'
         edgePar ~ "(" edgeItem+ ")" edges?
         edgeItem ~ (edgeVal | ternary) comment*
 
         edgeVal ~ (path | name) (edges+ | value)?
 
-        ternary ~ "(" tern ")" {
+        ternary ~ 	"(" tern ")" | tern {
             tern ~ ternIf ternThen ternElse? ternRadio?
             ternIf ~ (path | name) ternCompare?
-            ternThen ~ "?" (ternary | path | name | scalar1 | tuple | quote)
-            ternElse ~ ":" (ternary | path | name | scalar1 | tuple | quote)
-            ternCompare ~ compare (path | name | scalar1 | tuple | quote)
+            ternThen ~ "?" (ternary | path | name | value1)
+            ternElse ~ ":" (ternary | path | name | value1)
+            ternCompare ~ compare (path | name | value1)
             ternRadio ~ "|" ternary
         }
     }
@@ -175,8 +199,7 @@ tr3 ~ left right* {
     name ~ '^([A-Za-z_][A-Za-z0-9_]*)'
     quote ~ '^\"([^\"]*)\"'
     num ~ '^([+-]*([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+[.](?![.])|[0-9]+)([e][+-][0-9]+)?)'
-    array ~ '^\:?\[[ ]*([0-9]+)[ ]*\]'
-    comment ~ '^[,]|^[/][/][ ]*((.*?)[\r\n]+|^[ \r\n\t]+)'
+    comment ~ '^[,]|^([/][/][ ]*(.*?)[\r\n]+|^[ \r\n\t]+)'
     compare ~ '^[<>!=][=]?'
     embed ~ '^[{][{](?s)(.*?)[}][}]'
 }
