@@ -142,7 +142,7 @@ public class ParStr {
     struct RangeRegx {
         var matching: Range<String.Index>?
         var advance: Range<String.Index>?
-        init(_ matching_: NSRange, _ advance_: NSRange, _ str: String!) {
+        init(_ matching_: NSRange, _ advance_: NSRange, _ str: String) {
             matching = Range(matching_, in: str)
             advance = Range(advance_, in: str)
         }

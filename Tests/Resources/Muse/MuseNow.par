@@ -1,12 +1,12 @@
-muse: ask (see | say | hear | more) {
+muse ~ ask (see | say | hear | more) {
     
-    ask: 'muse' 'now'?
+    ask ~ 'muse' 'now'?
 
-    see: show (cal | 'reminders' | 'routine' | 'memo' | 'dial' ) {
-        show: ('show' show() | 'hide' hide())
-        cal: ('calendars' | 'calendar'? calendar() )
+    see ~ show (cal | 'reminders' | 'routine' | 'memo' | 'dial' ) {
+        show ~ ('show' show() | 'hide' hide())
+        cal ~ ('calendars' | 'calendar'? calendar() )
     }
-    say: ('say' | 'skip') ('event' | 'time' | 'memo')
-    hear: ('hear' | 'mute') ('speaker' | 'earbuds')
-    more: 'more'? ('about' | 'support' | 'blog' | 'tour')
+    say ~ ('say' | 'skip') ('event' | 'time' | 'memo')
+    hear ~ ('hear' | 'mute') ('speaker' | 'earbuds')
+    more ~ 'more'? ('about' | 'support' | 'blog' | 'tour')
 }

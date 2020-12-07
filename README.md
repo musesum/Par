@@ -186,7 +186,7 @@ tr3 ~ left right* {
 
         edgeVal ~ (path | name) (edges+ | value)?
 
-        ternary ~ 	"(" tern ")" | tern {
+        ternary ~ "(" tern ")" | tern {
             tern ~ ternIf ternThen ternElse? ternRadio?
             ternIf ~ (path | name) ternCompare?
             ternThen ~ "?" (ternary | path | name | value1)
@@ -195,7 +195,8 @@ tr3 ~ left right* {
             ternRadio ~ "|" ternary
         }
     }
-    path ~ '^((([A-Za-z_][A-Za-z0-9_]*)*([.˚*])+([A-Za-z_][A-Za-z0-9_.˚*]*)*)+)'
+    path ~ '^(([A-Za-z_][A-Za-z0-9_]*)?[.˚*]+[A-Za-z0-9_.˚*]*)'
+    wild ~ '^[.˚*]+'
     name ~ '^([A-Za-z_][A-Za-z0-9_]*)'
     quote ~ '^\"([^\"]*)\"'
     num ~ '^([+-]*([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+[.](?![.])|[0-9]+)([e][+-][0-9]+)?)'

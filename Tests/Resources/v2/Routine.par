@@ -1,4 +1,4 @@
-routine ~ ask (add | remove) dow+ tod dur? title {
+`routine ~ ask (add | remove) dow+ tod dur? title {
 
     ask ~ 'routine'
     add ~ 'add' | 'insert'
