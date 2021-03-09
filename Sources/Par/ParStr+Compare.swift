@@ -21,8 +21,8 @@ public extension ParStr {
         // for non-match, compare will insert a 🚫 into expectedErr and actualErr
         if let (expectedErr,actualErr) = ParStr.compare(expected, actual) {
             print (" 🚫 mismatch")
-            print ("⟹ " + expectedErr)
-            print ("⟹ " + actualErr + "\n")
+            print ("expect ⟹ " + expectedErr)
+            print ("actual ⟹ " + actualErr + "\n")
             return 1 // error
         }
         else {

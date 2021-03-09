@@ -46,9 +46,9 @@ extension String {
     ///
     public func splitWild(_ wild: String) -> (String,String,String) {
 
-        var prefix    = ""  // a   in a~b
-        var wildcard  = ""  // ~   in a~b
-        var suffix    = ""  // b   in a~b
+        var prefix    = "" // a in a~b
+        var wildcard  = "" // ~ in a~b
+        var suffix    = "" // b in a~b
 
         // get non wildcard chars for prefix
         var i = 0
@@ -78,7 +78,7 @@ extension String {
     /// append string to self with spacing
     public mutating func plus(_ add: String?) {
         guard let add = add else { return }
-        if      add == ","  { self = without(trailing: " ") + add }
+        if      add  == "," { self = without(trailing: " ") + add }
         else if last == "(" { self += add }
         else if last == " " { self += add }
         else                { self = with(trailing: " ") + add }

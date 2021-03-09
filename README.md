@@ -150,12 +150,12 @@ tr3 ~ left right* {
 
     left ~ (path | name | quote) 
 
-    right ~ (tr3Val | child | many | copier | array | edges | embed | comment)+
+    right ~ (tr3Val | child | many | copyat | array | edges | embed | comment)+
 
     tr3Val ~ value
     child ~ "{" comment* tr3+ "}"
     many ~ "." "{" tr3+ "}"
-    copier ~ "©" (path | name)
+    copyat ~ "@" (path | name)
     array ~ "[" thru "]"
 
     value ~ scalar | tuple | quote
@@ -180,7 +180,7 @@ tr3 ~ left right* {
     }
     edges ~ edgeOp (edgePar | edgeItem) comment* {
 
-        edgeOp ~ '^([<][<⋯!©ⓝⓒ\=\╌>]+|[⋯!©ⓝⓒ\=\╌>]+[>])'
+        edgeOp ~ '^([<][<⋯!@&\=\╌>]+|[⋯!@&\=\╌>]+[>])'
         edgePar ~ "(" edgeItem+ ")" edges?
         edgeItem ~ (edgeVal | ternary) comment*
 
@@ -195,15 +195,16 @@ tr3 ~ left right* {
             ternRadio ~ "|" ternary
         }
     }
-    path ~ '^(([A-Za-z_][A-Za-z0-9_]*)?[.˚*]+[A-Za-z0-9_.˚*]*)'
-    wild ~ '^[.˚*]+'
+    path ~ '^(([A-Za-z_][A-Za-z0-9_]*)?[.º˚*]+[A-Za-z0-9_.º˚*]*)'
     name ~ '^([A-Za-z_][A-Za-z0-9_]*)'
     quote ~ '^\"([^\"]*)\"'
     num ~ '^([+-]*([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+[.](?![.])|[0-9]+)([e][+-][0-9]+)?)'
-    comment ~ '^[,]|^([/][/][ ]*(.*?)[\r\n]+|^[ \r\n\t]+)'
+    comment ~ '^([,]+|^[/]{2,}[ ]*(.*?)[\n\r\t]+|\/[*]+.*?\*\/)'
     compare ~ '^[<>!=][=]?'
     embed ~ '^[{][{](?s)(.*?)[}][}]'
 }
+"""#
+
 ```
 #### Future
 

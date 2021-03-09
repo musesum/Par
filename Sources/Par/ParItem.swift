@@ -97,6 +97,11 @@ public class ParItem {
 
     public func getFirstFloat() -> Float {
         if let value = nextPars.first?.value {
+
+            return Float(value) ?? Float.nan
+        }
+        if let value = nextPars.first?.nextPars.first?.value  {
+
             return Float(value) ?? Float.nan
         }
         return Float.nan

@@ -1,5 +1,4 @@
-√ {
-    sky {  // visual music program
+sky {  // visual music program
         main {  // main controls
             frame (0)  // frame counter
             fps (1..60 = 60)  // frames per second
@@ -12,7 +11,7 @@
             render "render"  // render layer al
         }
         dock {  // list of panel items to put in dock
-            fader average (1) melt timetunnel zhabatinski slide fredkin brush colorize scroll tile speed camera record }
+            fader average(1) melt timetunnel zhabatinski slide fredkin brush colorize scroll tile speed camera record }
         colorize {  // false color mapping palette
             pal0 "roygbik"  // rainbow palette
             pal1 "wKZ"  // (w)hite blac(K) fractali(Z)e
@@ -44,16 +43,16 @@
                 next (x 0..1, y 0..1)  // endint point of segment
             } }
         shader { _compute { type "compute" file "whatever.metal" on (0..1) buffer { version (0..1) } }
-            cellMelt ©_compute { type "compute" file "cell.melt.metal" on (0..1) buffer { version (0..1) } }
-            cellFredkin ©_compute { type "compute" file "cell.fredkin.metal" on (0..1) buffer { version (0..1) } }
-            cellGas ©_compute { type "compute" file "cell.gas.metal" on (0..1) buffer { version (0..1) } }
-            cellAverage ©_compute { type "compute" file "cell.average.metal" on (0..1) buffer { version (0..1) } }
-            cellModulo ©_compute { type "compute" file "cell.modulo.metal" on (0..1) buffer { version (0..1) } }
-            cellFader ©_compute { type "compute" file "cell.fader.metal" on (0..1) buffer { version (0..1) } }
-            cellSlide ©_compute { type "compute" file "cell.slide.metal" on (0..1) buffer { version (0..1) } }
-            cellDrift ©_compute { type "compute" file "cell.drift.metal" on (0..1) buffer { version (0..1) } }
-            cellTimetunnel ©_compute { type "compute" file "cell.timetunnel.metal" on (0..1) buffer { version (0..1) } }
-            cellZhabatinski ©_compute { type "compute" file "cell.zhabatinski.metal" on (0..1) buffer { version (0..1) bits (2..0.4 = 3) } repeat (11) }
+            cellMelt @_compute { type "compute" file "cell.melt.metal" on (0..1) buffer { version (0..1) } }
+            cellFredkin @_compute { type "compute" file "cell.fredkin.metal" on (0..1) buffer { version (0..1) } }
+            cellGas @_compute { type "compute" file "cell.gas.metal" on (0..1) buffer { version (0..1) } }
+            cellAverage @_compute { type "compute" file "cell.average.metal" on (0..1) buffer { version (0..1) } }
+            cellModulo @_compute { type "compute" file "cell.modulo.metal" on (0..1) buffer { version (0..1) } }
+            cellFader @_compute { type "compute" file "cell.fader.metal" on (0..1) buffer { version (0..1) } }
+            cellSlide @_compute { type "compute" file "cell.slide.metal" on (0..1) buffer { version (0..1) } }
+            cellDrift @_compute { type "compute" file "cell.drift.metal" on (0..1) buffer { version (0..1) } }
+            cellTimetunnel @_compute { type "compute" file "cell.timetunnel.metal" on (0..1) buffer { version (0..1) } }
+            cellZhabatinski @_compute { type "compute" file "cell.zhabatinski.metal" on (0..1) buffer { version (0..1) bits (2..0.4 = 3) } repeat (11) }
             cellRecord { type "record" file "cell.record.metal" on (0..1) buffer { version (0..1) } flip (0..1) }
             cellCamera { type "camera" file "cell.camera.metal" on (0..1) buffer { version (0..1) } flip (0..1) }
             cellCamix { type "camix" file "cell.camix.metal" on (0..1) buffer { version (0..1) } flip (0..1) }
@@ -70,7 +69,7 @@
             bitplane { type "slider" title "Bit Plane" frame (x 10, y 84, w 192, h 32) icon "icon.pearl.white.png" value (0..1) >>colorize.buffer.bitplane }
             fillOne {  // ffffffde
                 type "trigger" title "Fill Ones" frame (x 210, y 84, w 32, h 32) icon "icon.drop.gray.png" value (0..1) >>draw.screen.fillOne } } }
-        cell { fader ©_cell { base { type "cell" title "Fader"  // name
+        cell { fader @_cell { base { type "cell" title "Fader"  // name
             frame (x 0, y 0, w 250, h 130) icon "icon.cell.fader.png" }
             controls { hide { type "panelx" title "hide" frame (x 0, y 0, w 40, h 40) icon "icon.thumb.X.png" value (0..1) }
                 ruleOn { type "panelon" title "Active" frame (x 202, y 4, w 40, h 32) icon "icon.cell.fader.png" value (0..1) >>(controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) cell.speed.restart shader.cellFader.on) lag (0) }
@@ -80,7 +79,7 @@
                 bitplane { type "slider" title "Bit Plane" frame (x 10, y 84, w 192, h 32) icon "icon.pearl.white.png" value (0..1 = 0.2) >>colorize.buffer.bitplane }
                 fillOne {  // ffffffde
                     type "trigger" title "Fill Ones" frame (x 210, y 84, w 32, h 32) icon "icon.drop.gray.png" value (0..1) >>draw.screen.fillOne } } }
-            fredkin ©_cell { base { type "cell" title "Fredkin"  // name
+            fredkin @_cell { base { type "cell" title "Fredkin"  // name
                 frame (x 0, y 0, w 250, h 130) icon "icon.cell.fredkin.png" }
                 controls { hide { type "panelx" title "hide" frame (x 0, y 0, w 40, h 40) icon "icon.thumb.X.png" value (0..1) }
                     ruleOn { type "panelon" title "Active" frame (x 202, y 4, w 40, h 32) icon "icon.cell.fredkin.png" value (0..1) >>(controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) cell.speed.restart shader.cellFredkin.on) lag (0) }
@@ -90,7 +89,7 @@
                     bitplane { type "slider" title "Bit Plane" frame (x 10, y 84, w 192, h 32) icon "icon.pearl.white.png" value (0..1) >>colorize.buffer.bitplane }
                     fillOne {  // ffffffde
                         type "trigger" title "Fill Ones" frame (x 210, y 84, w 32, h 32) icon "icon.drop.gray.png" value (0..1) >>draw.screen.fillOne } } }
-            timetunnel ©_cell { base { type "cell" title "Time Tunnel"  // name
+            timetunnel @_cell { base { type "cell" title "Time Tunnel"  // name
                 frame (x 0, y 0, w 250, h 130) icon "icon.cell.timeTunnel.png" }
                 controls { hide { type "panelx" title "hide" frame (x 0, y 0, w 40, h 40) icon "icon.thumb.X.png" value (0..1) }
                     ruleOn { type "panelon" title "Active" frame (x 202, y 4, w 40, h 32) icon "icon.cell.timeTunnel.png" value (0..1) >>(controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) cell.speed.restart shader.cellTimetunnel.on) lag (0) }
@@ -100,7 +99,7 @@
                     bitplane { type "slider" title "Bit Plane" frame (x 10, y 84, w 192, h 32) icon "icon.pearl.white.png" value (0..1) >>colorize.buffer.bitplane }
                     fillOne {  // ffffffde
                         type "trigger" title "Fill Ones" frame (x 210, y 84, w 32, h 32) icon "icon.drop.gray.png" value (0..1) >>draw.screen.fillOne } } }
-            zhabatinski ©_cell { base { type "cell" title "Zhabatinski"  // name
+            zhabatinski @_cell { base { type "cell" title "Zhabatinski"  // name
                 frame (x 0, y 0, w 250, h 130) icon "icon.cell.zhabatinski.png" }
                 controls { hide { type "panelx" title "hide" frame (x 0, y 0, w 40, h 40) icon "icon.thumb.X.png" value (0..1) }
                     ruleOn { type "panelon" title "Active" frame (x 202, y 4, w 40, h 32) icon "icon.cell.zhabatinski.png" value (0..1) >>(controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) cell.speed.restart shader.cellZhabatinski.on) lag (0) }
@@ -110,10 +109,20 @@
                     bitplane { type "slider" title "Bit Plane" frame (x 10, y 84, w 192, h 32) icon "icon.pearl.white.png" value (0..1) >>colorize.buffer.bitplane }
                     fillOne {  // ffffffde
                         type "trigger" title "Fill Ones" frame (x 210, y 84, w 32, h 32) icon "icon.drop.gray.png" value (0..1) >>draw.screen.fillOne } } }
-            melt ©_cell { base { type "cell" title "Melt"  // name
+            melt @_cell { base { type "cell" title "Melt"  // name
                 frame (x 0, y 0, w 250, h 130) icon "icon.cell.melt.png" }
                 controls { hide { type "panelx" title "hide" frame (x 0, y 0, w 40, h 40) icon "icon.thumb.X.png" value (0..1) }
-                    ruleOn { type "panelon" title "Active" frame (x 202, y 4, w 40, h 32) icon "icon.cell.melt.png" value (0..1) >>(controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) cell.speed.restart shader.cellMelt.on) lag (0) }
+                    ruleOn { type "panelon" title "Active" frame (x 202, y 4, w 40, h 32) icon "icon.cell.melt.png"
+                        value (0..1) >>(controls.ruleOn.value(0)
+                                        controls.ruleOn.value(0)
+                                        controls.ruleOn.value(0)
+                                        controls.ruleOn.value(0)
+                                        controls.ruleOn.value(0)
+                                        controls.ruleOn.value(0)
+                                        controls.ruleOn.value(0)
+                                        cell.speed.restart
+                                        shader.cellMelt.on)
+                        lag (0) }
                     version { type "segment" title "Version" frame (x 10, y 44, w 192, h 32) value (0..1 = 1) >>cellMelt.buffer.version user >>controls.ruleOn.value(1) }
                     lock { type "switch" title "Lock" frame (x 210, y 44, w 32, h 32) icon { off "icon.lock.closed.png", on "icon.lock.open.png" }
                         value (0..1) lag (0) }
@@ -122,20 +131,35 @@
                         type "trigger" title "Fill Ones" frame (x 210, y 84, w 32, h 32) icon "icon.drop.gray.png" value (1.67772e+07) >>draw.screen.fillOne }
                     fillZero {  // 00ffffde
                         value (1.67772e+07) } } }
-            average ©_cell { base { type "cell" title "Average"  // name
+            average @_cell { base { type "cell" title "Average"  // name
                 frame (x 0, y 0, w 250, h 130) icon "icon.cell.average.png" }
                 controls { hide { type "panelx" title "hide" frame (x 0, y 0, w 40, h 40) icon "icon.thumb.X.png" value (0..1) }
-                    ruleOn { type "panelon" title "Active" frame (x 202, y 4, w 40, h 32) icon "icon.cell.average.png" value (0..1) >>(controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) cell.speed.restart shader.cellAverage.on) lag (0) }
+                    ruleOn { type "panelon" title "Active" frame (x 202, y 4, w 40, h 32) icon "icon.cell.average.png"
+                    value (0..1) >>(controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) cell.speed.restart shader.cellAverage.on) lag (0) }
                     version { type "segment" title "Version" frame (x 10, y 44, w 192, h 32) value (0..1 = 0.4) >>cellAverage.buffer.version user >>controls.ruleOn.value(1) }
                     lock { type "switch" title "Lock" frame (x 210, y 44, w 32, h 32) icon { off "icon.lock.closed.png", on "icon.lock.open.png" }
                         value (0..1) lag (0) }
                     bitplane { type "slider" title "Bit Plane" frame (x 10, y 84, w 192, h 32) icon "icon.pearl.white.png" value (0..1) >>colorize.buffer.bitplane }
                     fillOne {  // ffffffde
                         type "trigger" title "Fill Ones" frame (x 210, y 84, w 32, h 32) icon "icon.drop.gray.png" value (0..1) >>draw.screen.fillOne } } }
-            slide ©_cell { base { type "cell" title "Slide Bit Planes"  // name
+            slide @_cell { base { type "cell" title "Slide Bit Planes"  // name
                 frame (x 0, y 0, w 250, h 130) icon "icon.cell.slide.png" }
                 controls { hide { type "panelx" title "hide" frame (x 0, y 0, w 40, h 40) icon "icon.thumb.X.png" value (0..1) }
-                    ruleOn { type "panelon" title "Active" frame (x 202, y 4, w 40, h 32) icon "icon.cell.slide.png" value (0..1) >>(controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) controls.ruleOn.value(0) cell.speed.restart shader.cellSlide.on) lag (0) }
+                    ruleOn {
+                        type "panelon"
+                        title "Active"
+                        frame (x 202, y 4, w 40, h 32)
+                        icon "icon.cell.slide.png"
+                        value (0..1) >> (controls.ruleOn.value(0)
+                                        controls.ruleOn.value(0)
+                                        controls.ruleOn.value(0)
+                                        controls.ruleOn.value(0)
+                                        controls.ruleOn.value(0)
+                                        controls.ruleOn.value(0)
+                                        controls.ruleOn.value(0)
+                                        cell.speed.restart
+                                        shader.cellSlide.on)
+                        lag (0) }
                     version { type "segment" title "Version" frame (x 10, y 44, w 192, h 32) value (0..1 = 1) >>cellSlide.buffer.version user >>controls.ruleOn.value(1) }
                     lock { type "switch" title "Lock" frame (x 210, y 44, w 32, h 32) icon { off "icon.lock.closed.png", on "icon.lock.open.png" }
                         value (0..1) lag (0) }
@@ -171,3 +195,25 @@
                         lag (0) }
                     repeatBox { type "box" title "Repeat" frame (x 10, y 40, w 120, h 120) radius (10) tap2 (-1, -1) lag (0) user (0..1 = 1) >>controls.tileOn.value(1) value (0..1, 0..1) >>render.buffer.repeat }
                     mirrorBox { type "box" title "Mirror" frame (x 140, y 60, w 80, h 80) radius (10) tap2 (1, 1) lag (0) user (0..1 = 1) value (0..1, 0..1) >>render.buffer.mirror } } } } } }
+
+
+note(val time) >> next
+next[8] >> next[%8] (time + 1, velo * 0.8)
+
+next._1(val, time + 1, velo * velo._1) >> _2
+next._2(val, time + 1, velo * velo._2) >> _3
+next._3(val, time + 1, velo * velo._3) >> _4
+next._4(val, time + 1, velo * velo._4) >> _5
+next._5(val, time + 1, velo * velo._5) >> _6
+next._6(val, time + 1, velo * velo._6) >> _7
+next._7(val, time + 1, velo * velo._7) >> _8
+next._8(val, time + 1, velo * velo._8)
+
+velo._8
+
+a[2^ 5]
+b[2^10] <@> a[% 32]
+c[2^15] <@> b[% 16] // connect modulo 
+d[2^15] <@> c[.] // straight connect to corresponding index N^1
+e[2^15] <@> d[*] // super connect to all indexs N^2
+
