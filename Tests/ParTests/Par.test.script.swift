@@ -13,8 +13,8 @@ import Foundation
 
 let Bug1Par = // 🚫bug! single rvalue `ask`
 #"""
-muse ~ ask {
-ask ~ "muse" ("please" | "yo")?
+test ~ ask {
+ask ~ "test" ("please" | "yo")?
 }
 """#
 
@@ -42,8 +42,8 @@ a ~ b (c | d? | e)+ f {
 
 let Namespace2Par =
 #"""
-muse ~ ask etc {
-    ask ~ "muse" ("please" | "yo")?
+test ~ ask etc {
+    ask ~ "test" ("please" | "yo")?
     etc ~ "etc"
 }
 """#
@@ -65,11 +65,11 @@ type ~ ("alarms" | memos) ("yo" | etc)  match? {
 }
 """#
 
-let MusePar =
+let TestPar =
 #"""
-muse ~ ask (show | hide | setting | clear) {
+test ~ ask (show | hide | setting | clear) {
 
-    ask ~ 'muse' 'please'?
+    ask ~ 'test' 'please'?
     show ~ ('show' | 'reveal') type
     hide ~ ('hide' | 'remove') type
     clear ~ 'clear' type

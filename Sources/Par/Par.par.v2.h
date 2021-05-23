@@ -1,7 +1,7 @@
 //  Par.par.h
 //
 //  Created by warren on 6/22/17.
-//  Copyright © 2019 Muse Dot Company
+//  Copyright © 2019 DeepMuse
 //  License: Apache 2.0 - see License file
 
 // this is not parsed, describes Par.par in the Par.swift file

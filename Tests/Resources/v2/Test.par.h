@@ -1,6 +1,6 @@
-muse ~ ask (show | hide | setting | clear) {
+test ~ ask (show | hide | setting | clear) {
     
-    ask ~ 'muse' 'please'?
+    ask ~ 'test' 'please'?
     show ~ ('show' | 'reveal') type
     hide ~ ('hide' | 'remove') type
     clear ~ 'clear' type

@@ -1,7 +1,7 @@
 //  ParMatching.swift
 //
 //  Created by warren on 8/5/17.
-//  Copyright © 2017 Muse Dot Company
+//  Copyright © 2017 DeepMuse
 //  License: Apache 2.0 - see License file
 
 import Foundation
@@ -34,7 +34,7 @@ public class ParMatching {
         if let parItem = parItem {
 
             if parItem.nextPars.isEmpty,
-               parItem.node?.reps.repMin == 0 {
+               parItem.node.reps.repMin == 0 {
 
                 //?? print("-", terminator: "")
             }
@@ -63,7 +63,7 @@ public class ParMatching {
     /// add a parItem to this ParMatching
     func add (_ parItem: ParItem) {
 
-        if !(parItem.node?.ignore ?? false) {
+        if !(parItem.node.ignore) {
             parItems.append(parItem)
         }
     }
@@ -94,10 +94,11 @@ public class ParMatching {
             return matching
 
         case 1:
-            if  let parFirst = parItems.first,
-                let parNode = parFirst.node {
+            if  let parFirst = parItems.first {
 
-                switch  parNode.parOp  {
+                let parNode = parFirst.node
+
+                switch parNode.parOp  {
 
                 case .def, .and, .or:
 
@@ -162,7 +163,7 @@ public class ParMatching {
     /// to  or:(path: show, path: hide, path: setting, path: clear)
 
     func promoteNextPars(_ parItem: ParItem) -> [ParItem]? {
-        if  parItem.node?.pattern == "",
+        if  parItem.node.pattern == "",
             parItem.value == nil {
 
             return parItem.nextPars

@@ -1,6 +1,6 @@
-muse ~ ask (see | say | hear | more) {
+test ~ ask (see | say | hear | more) {
     
-    ask ~ 'muse' 'now'?
+    ask ~ 'test' 'now'?
 
     see ~ show (cal | 'reminders' | 'routine' | 'memo' | 'dial' ) {
         show ~ ('show' show() | 'hide' hide())

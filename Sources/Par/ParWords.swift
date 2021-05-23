@@ -1,7 +1,7 @@
 //  ParWords.swift
 //
 //  Created by warren on 7/28/17.
-//  Copyright © 2017 Muse Dot Company
+//  Copyright © 2017 DeepMuse
 //  License: Apache 2.0 - see License file
 
 import Foundation
@@ -10,22 +10,21 @@ import Foundation
 public class ParWords: ParStr {
 
     var parRecents = ParRecents()
-    var words: [Substring]!
-    var found: [Int]! // index of found
+    var words = [Substring]()
+    var found = [Int]() // index of found
     var starti = 0 // where to start searching
     var count = 0
     var time = TimeInterval(0)
 
-    public convenience init(_ str_: String) {
-
+    public convenience init(_ str: String) {
         self.init()
-        update(str_)
+        update(str)
     }
 
-    public func update(_ str_: String, _ time_: TimeInterval = Date().timeIntervalSince1970) {
+    public func update(_ str: String, _ time: TimeInterval = Date().timeIntervalSince1970) {
         
-        str = str_
-        time = time_
+        self.str = str
+        self.time = time
         restart() // set sub from str
         starti = 0
         count = 0
@@ -48,11 +47,11 @@ public class ParWords: ParStr {
         }
     }
 
-    override func getSnapshot() -> Any! {
+    override func getSnapshot() -> Any {
         return ParSnapshot(self)
     }
 
-    override func putSnapshot(_ any: Any!) {
+    override func putSnapshot(_ any: Any?) {
         if let snapshot = any as? ParSnapshot {
             sub = snapshot.sub
             count = snapshot.count
@@ -70,7 +69,7 @@ public class ParWords: ParStr {
 
     /// Advance past match and return parItem with number of hops from normal sequence.
     /// - note: extension of ParStr, for a set of words match in parallel. Only use on a short phrase.
-    func advancePar(_ node: ParNode!, _ index: Int, _ str: String!, _ deltaTime: TimeInterval = 0) -> ParItem? {
+    func advancePar(_ node: ParNode, _ index: Int, _ str: String, _ deltaTime: TimeInterval = 0) -> ParItem? {
 
         /// matching a recent query is treated as a last resort, which is insured by adding cuttoff time for short term memory
         let penaltyHops = deltaTime > 0 ? Int(deltaTime + ParRecents.shortTermMemory) : 0
@@ -106,9 +105,9 @@ public class ParWords: ParStr {
 
     /// match a quoted string and advance past match
     /// - note: extension of ParStr, for a set of words match in parallel. Only use on a short phrase.
-    override func matchMatchStr(_ node: ParNode!) -> ParMatching {
+    override func matchMatchStr(_ node: ParNode) -> ParMatching {
 
-        func match(_ i: Int) -> String! {
+        func match(_ i: Int) -> String? {
             let word = words[i]
             return node.matchStr?(word)
         }
@@ -137,7 +136,7 @@ public class ParWords: ParStr {
           node.reps.repMin >= 1 {
 
             for parItem in parRecents.parItems.reversed() {
-                if  let id = parItem.node?.id, id == node.id,
+                if  parItem.node.id == node.id,
                     let word = parItem.value {
 
                     let deltaTime = time - parItem.time
@@ -152,7 +151,7 @@ public class ParWords: ParStr {
 
     /// match a quoted string and advance past match
     /// - note: extension of ParStr, for a set of words match in parallel. Only use on a short phrase.
-    override func matchQuote(_ node: ParNode!, withEmpty: Bool=false) -> ParMatching {
+    override func matchQuote(_ node: ParNode, withEmpty: Bool = false) -> ParMatching {
 
         func match(_ i: Int) -> Bool {
             let word = words[i]
@@ -196,7 +195,7 @@ public class ParWords: ParStr {
            node.reps.repMin >= 1 {
 
             for parItem in parRecents.parItems.reversed() {
-                if  let id = parItem.node?.id, id == node.id {
+                if parItem.node.id == node.id {
 
                     let deltaTime = time - parItem.time
                     let parItem = advancePar(node, words.count, node.pattern, deltaTime)
@@ -210,7 +209,7 @@ public class ParWords: ParStr {
     /// Match regular expression to beginning of substring
     /// - parameter regx: compiled regular expression
     /// - returns: ranges of inner value and outer match, or nil
-    func matchRegxWord(_ regx: NSRegularExpression, _ word: Substring) -> RangeRegx! {
+    func matchRegxWord(_ regx: NSRegularExpression, _ word: Substring) -> RangeRegx? {
 
         let nsRange = NSRange( word.startIndex ..< word.endIndex, in: str)
         let match = regx.matches(in: str, options: [], range: nsRange)
@@ -284,7 +283,7 @@ public class ParWords: ParStr {
             node.reps.repMin >= 1 {
 
             for parItem in parRecents.parItems.reversed() {
-                if  let id = parItem.node?.id, id == node.id,
+                if  parItem.node.id == node.id,
                     let word = parItem.value,
                     let regx = node.regx,
                     let _ = matchRegxWord(regx, word) {

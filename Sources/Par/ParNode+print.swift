@@ -1,7 +1,7 @@
 //  ParNode+print.swift
 //
 //  Created by warren on 7/1/17.
-//  Copyright © 2017 Muse Dot Company
+//  Copyright © 2017 DeepMuse
 //  License: Apache 2.0 - see License file
 
 import Foundation
@@ -88,7 +88,7 @@ public extension ParNode {
     func makeSuffixs(_ level: Int) -> String {
 
         /// And edgeNexts
-        func makeAnd(_ next: ParNode!) -> String {
+        func makeAnd(_ next: ParNode) -> String {
             
             if next.isName {
                 return next.makeScript(isLeft: false)
@@ -115,7 +115,7 @@ public extension ParNode {
         }
         
         /// Alternation suffixes
-        func makeOr(_ next: ParNode!, inner: Bool) -> String {
+        func makeOr(_ next: ParNode, inner: Bool) -> String {
 
             var str = "" // return value
             let dels = inner ? ["", " | ", ""] :  [" (", " | ", ")"]
@@ -136,7 +136,7 @@ public extension ParNode {
         }
         
         /// Definition
-        func makeDef(_ next: ParNode!) -> String {
+        func makeDef(_ next: ParNode) -> String {
             
             var str = " {\n" // return value
             for next2 in next.edgeNexts {

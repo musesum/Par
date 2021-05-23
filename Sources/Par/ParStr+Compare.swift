@@ -1,7 +1,7 @@
 //  ParStr+Compare.swift
 //
 //  Created by warren on 8/7/17.
-//  Copyright © 2017 Muse Dot Company
+//  Copyright © 2017 DeepMuse
 //  License: Apache 2.0 - see License file
 
 
@@ -16,7 +16,7 @@ public extension ParStr {
     ///
     static func testCompare(_ expected: String, _ actual: String, echo: Bool = false) -> Int {
         if echo {
-            print ("⟹ " + expected, terminator:"")
+            print ("⟹ " + expected, terminator: "")
         }
         // for non-match, compare will insert a 🚫 into expectedErr and actualErr
         if let (expectedErr, actualErr) = ParStr.compare(expected, actual) {

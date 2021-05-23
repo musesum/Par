@@ -1,7 +1,7 @@
 //  ParNode+connect.swift
 //
 //  Created by warren on 7/7/17.
-//  Copyright © 2017 Muse Dot Company
+//  Copyright © 2017 DeepMuse
 //  License: Apache 2.0 - see License file
 
 public extension ParNode {
@@ -13,7 +13,7 @@ public extension ParNode {
         - name: name of node to find
         - visitor: track nodes already visited to break loops
      */
-    func findLeft(_ name: String!, _ visitor: Visitor) -> ParNode! {
+    func findLeft(_ name: String, _ visitor: Visitor) -> ParNode? {
 
         // haven't been here before, so check it out
         if visitor.newVisit(id) {
@@ -116,7 +116,7 @@ public extension ParNode {
             (a | ( b | c))   ⟹  true
             (a | ( b | c)?)  ⟹  false
          */
-        func isSelfRecursive(_ next: ParNode) -> Bool { //TODO: ParNode! ?
+        func isSelfRecursive(_ next: ParNode) -> Bool {
             
             if next.parOp == parOp &&
                 next.reps.repMax == reps.repMax &&

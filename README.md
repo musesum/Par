@@ -56,14 +56,14 @@ greetings ~ cough{, 3} (hello | yo+) (big | beautiful)* world?
 
 #### Closures for Runtime APIs
 
-in the file muse.par is the line
+in the file test.par is the line
 ```swift
 events ~ 'event' eventList()
 ```
 
-whereupon the source in MuseNLP+test.swift, attaches to eventList()
+whereupon the source in TestNLP+test.swift, attaches to eventList()
 ```swift
-root?.setMatch("muse show event eventList()", eventListChecker)
+root?.setMatch("test show event eventList()", eventListChecker)
 ```
 and attaches a simple callback to extend the lexicon:
 ```swift
@@ -74,49 +74,49 @@ func eventListChecker(_ str: Substring) -> String? {
 ```
 which in the real world could attach to a dynamic calendar, or any other 3rd party API.
 
-Here is the output from ParTests/MuseNLP+Test.swift :
+Here is the output from ParTests/TestNLP+Test.swift :
 ```swift
 ⟹ before attaching eventListChecker() - `yo` is unknown
-"muse show event yo" ⟹ 🚫 failed
+"test show event yo" ⟹ 🚫 failed
 
 ⟹ runtime is attaching eventListChecker() callback to eventList()
-"muse show event eventList()"  ⟹  eventList.924 = (Function)
+"test show event eventList()"  ⟹  eventList.924 = (Function)
 
 ⟹ now `yo` is now matched during runtime
-"muse show event yo" ⟹  muse: 0 show: 0 event: 0 yo: 0 ⟹ hops: 0 ✔︎
+"test show event yo" ⟹  test: 0 show: 0 event: 0 yo: 0 ⟹ hops: 0 ✔︎
 ```
 
 #### Imprecise matching
 
 For NLP, word order may not perfectly match parse tree order. So, report number of hops (or Hamming Distance) from ideal.
 
-Output from ParTests/MuseNLP+Test.swift:
+Output from ParTests/TestNLP+Test.swift:
 ```swift
-"muse event show yo" ⟹  muse: 0 show: 1 event: 0 yo: 1 ⟹ hops: 2 ✔︎
-"yo muse show event" ⟹  muse: 1 show: 1 event: 2 yo: 2 ⟹ hops: 6 ✔︎
-"muse show yo event" ⟹  muse: 0 show: 0 event: 1 yo: 0 ⟹ hops: 1 ✔︎
-"muse event yo show" ⟹  muse: 0 show: 2 event: 0 yo: 0 ⟹ hops: 2 ✔︎
+"test event show yo" ⟹  test: 0 show: 1 event: 0 yo: 1 ⟹ hops: 2 ✔︎
+"yo test show event" ⟹  test: 1 show: 1 event: 2 yo: 2 ⟹ hops: 6 ✔︎
+"test show yo event" ⟹  test: 0 show: 0 event: 1 yo: 0 ⟹ hops: 1 ✔︎
+"test event yo show" ⟹  test: 0 show: 2 event: 0 yo: 0 ⟹ hops: 2 ✔︎
 ```
 
 #### Short term memory
 
 For NLP, set a time where words from a previous query continue onto the next query.
 
-Output from ParTests/MuseNLP+Test.swift:
+Output from ParTests/TestNLP+Test.swift:
 ```swift
 ⟹ with no shortTermMemory, partial matches fail
-"muse show event yo" ⟹  muse: 0 show: 0 event: 0 yo: 0 ⟹ hops: 0 ✔︎
-"muse hide yo" ⟹ 🚫 failed
-"muse hide event" ⟹ 🚫 failed
+"test show event yo" ⟹  test: 0 show: 0 event: 0 yo: 0 ⟹ hops: 0 ✔︎
+"test hide yo" ⟹ 🚫 failed
+"test hide event" ⟹ 🚫 failed
 "hide event" ⟹ 🚫 failed
 "hide" ⟹ 🚫 failed
 
 ⟹ after setting ParRecents.shortTermMemory = 8 seconds
-"muse show event yo" ⟹  muse: 0 show: 0 event: 0 yo: 0 ⟹ hops: 0 ✔︎
-"muse hide yo" ⟹  muse: 0 show: 10 event: 10 yo: 0 ⟹ hops: 20 ✔︎
-"muse hide event" ⟹  muse: 0 show: 10 event: 1 yo: 9 ⟹ hops: 20 ✔︎
-"hide event" ⟹  muse: 10 show: 9 event: 0 yo: 8 ⟹ hops: 27 ✔︎
-"hide" ⟹  muse: 9 show: 8 event: 8 yo: 9 ⟹ hops: 34 ✔︎
+"test show event yo" ⟹  test: 0 show: 0 event: 0 yo: 0 ⟹ hops: 0 ✔︎
+"test hide yo" ⟹  test: 0 show: 10 event: 10 yo: 0 ⟹ hops: 20 ✔︎
+"test hide event" ⟹  test: 0 show: 10 event: 1 yo: 9 ⟹ hops: 20 ✔︎
+"hide event" ⟹  test: 10 show: 9 event: 0 yo: 8 ⟹ hops: 27 ✔︎
+"hide" ⟹  test: 9 show: 8 event: 8 yo: 9 ⟹ hops: 34 ✔︎
 ```
 #### Use Case
 Here is the Par definition in the Par format:

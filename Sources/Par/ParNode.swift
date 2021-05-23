@@ -1,7 +1,7 @@
 //  ParNode.swift
 //
 //  Created by warren on 6/22/17.
-//  Copyright © 2017 Muse Dot Company
+//  Copyright © 2017 DeepMuse
 //  License: Apache 2.0 - see License file
 
 import Foundation
@@ -148,21 +148,21 @@ public class ParNode {
     /// Attach a closure to detect a match at beginning of parStr.sub(string)
     ///
     /// - Parameter str: space delimited sequence
-    /// - Parameter matchStr_: closure to compare substring
+    /// - Parameter matchStr: closure to compare substring
     ///
-    public func setMatch(_ str: String, _ matchStr_: @escaping MatchStr) {
+    public func setMatch(_ str: String, _ matchStr: @escaping MatchStr) {
         
-        print("\"\(str)\"  ⟹  ", terminator:"")
+        print("\"\(str)\"  ⟹  ", terminator: "")
 
         if let parItem = findMatch(ParStr(str)).parLast {
 
             //print(parItem.makeScript())
             
-            if let foundParItem = parItem.lastNode(),
-                let foundNode = foundParItem.node {
+            if let foundParItem = parItem.lastNode() {
+                let foundNode = foundParItem.node
                 
-                print("\(foundNode.nodeStrId()) = \(String(describing: matchStr_))")
-                foundNode.matchStr = matchStr_
+                print("\(foundNode.nodeStrId()) = \(String(describing: matchStr))")
+                foundNode.matchStr = matchStr
             }
         }
         else {

@@ -1,7 +1,7 @@
-    // same as test String MusePar
-muse ~ ask (show | hide | setting | clear) {
+    // same as test String TestPar
+test ~ ask (show | hide | setting | clear) {
 
-    ask ~ 'muse' 'please'?
+    ask ~ 'test' 'please'?
     show ~ ('show' | 'reveal') type
     hide ~ ('hide' | 'remove') type
     clear ~ 'clear' type

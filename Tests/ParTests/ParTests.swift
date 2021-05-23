@@ -46,7 +46,7 @@ final class ParTests: XCTestCase {
         err += testParse(Namespace2Par)
         err += testParse(CardinalPar)
         err += testParse(MultiGroupPar)
-        err += testParse(MusePar)
+        err += testParse(TestPar)
         err += testParse(RoutinePar, RoutineParOut)
         err += testParse(MediaParAndOr, MediaParAndOr)
         err += testParse(MediaPar, MediaParOut)
@@ -55,9 +55,9 @@ final class ParTests: XCTestCase {
     }
 
     /// test natural language processing with shifting order
-    func testMuseNLP() {
+    func testNLP() {
         print("\n------------------------------------")
-        let err = MuseNLP().testScript()
+        let err = TestNLP().testScript()
         XCTAssertEqual(err, 0)
     }
 
@@ -74,7 +74,7 @@ final class ParTests: XCTestCase {
 
     static var allTests = [
         ("testBasics", testBasics),
-        ("testNLP", testMuseNLP),
+        ("testNLP", testNLP),
         ("testTr3", testTr3),
     ]
 }

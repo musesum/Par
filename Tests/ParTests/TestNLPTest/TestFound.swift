@@ -1,6 +1,6 @@
-//  MuseFound.swift
+//  TestFound.swift
 //  Created by warren on 9/5/17.
-//  Copyright © 2017 Muse Dot Company All rights reserved.
+//  Copyright © 2017 DeepMuse All rights reserved.
 
 import Foundation
 import Par
@@ -14,29 +14,27 @@ public enum ActionType: Int { case
     alarm
 }
 
-public class MuseFound {
+public class TestFound {
 
     public var str = ""
     public var parItem: ParItem?
     public var hops = -1
 
-    public convenience init (_ str: String, _ nodeAny: ParItem!, _ hops: Int) {
+    public init (_ str: String, _ nodeAny: ParItem?, _ hops: Int) {
     
-        self.init()
         self.str = str
         self.parItem = nodeAny
         self.hops = hops
     }
 
-    public convenience init (_ from: MuseFound) {
-        self.init()
-        str     = from.str
-        parItem = from.parItem
-        hops    = from.hops
+    public init (_ from: TestFound) {
+        self.str     = from.str
+        self.parItem = from.parItem
+        self.hops    = from.hops
     }
 }
 
-class MuseModel {
+class TestModel {
 
     // var action: DoAction = .unknown
     var show = true

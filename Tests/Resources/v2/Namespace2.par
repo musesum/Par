@@ -1,4 +1,0 @@
-muse ~ ask etc {
-    ask ~ "muse" ("please" | "yo")?
-    etc ~ "etc"
-}

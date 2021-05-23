@@ -1,7 +1,7 @@
 //  ParStr.swift
 //
 //  Created by warren on 7/3/17.
-//  Copyright © 2017 Muse Dot Company
+//  Copyright © 2017 DeepMuse
 //  License: Apache 2.0 - see License file
 
 import Foundation
@@ -67,7 +67,7 @@ public class ParStr {
     }
     
     /// match a quoted string and advance past match
-    func matchQuote(_ node: ParNode!, withEmpty: Bool=false) -> ParMatching {
+    func matchQuote(_ node: ParNode, withEmpty: Bool=false) -> ParMatching {
         
         let pat = node.pattern
         
@@ -100,10 +100,10 @@ public class ParStr {
     ///
     /// This is very useful for dynamic data which changes ofen, such as a Calendar
     ///
-    func matchMatchStr(_ node: ParNode!) -> ParMatching {
+    func matchMatchStr(_ node: ParNode) -> ParMatching {
         // closure has already been set, so execute it
-        if node.matchStr != nil,
-            let str = node.matchStr?(sub) {
+        if let matchStr = node.matchStr,
+            let str = matchStr(sub) {
             
             sub = str.count < sub.count
                 ? sub[ sub.index(sub.startIndex, offsetBy: str.count) ..< sub.endIndex ]
@@ -172,7 +172,7 @@ public class ParStr {
     }
     
     /// compile a regular expression to be used later, during parse
-    static func compile (_ pattern: String) -> NSRegularExpression! {
+    static func compile (_ pattern: String) -> NSRegularExpression? {
         
         let options: NSRegularExpression.Options = [
             //.caseInsensitive,

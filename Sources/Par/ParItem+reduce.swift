@@ -36,10 +36,9 @@ extension ParItem {
         }
         func isEmptyRgx() -> Bool {
             if nextPars.count == 0,
-               node?.reps.repMin == 0 {
+               node.reps.repMin == 0 {
 
                 if nextPars.first?.value == nil,
-                   let node = node,
                    isRgx(node) {
                     return true
                 }
@@ -60,7 +59,7 @@ extension ParItem {
             reduction.append(contentsOf: reduced)
         }
         // self's node is a keyword, so keep it
-        if keywords[node?.pattern ?? ""] != nil {
+        if keywords[node.pattern] != nil {
             nextPars = reduction
             return [self]
         }

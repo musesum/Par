@@ -1,7 +1,7 @@
 //  ParItem.swift
 //
 //  Created by warren on 7/13/17.
-//  Copyright © 2017 Muse Dot Company
+//  Copyright © 2017 DeepMuse
 //  License: Apache 2.0 - see License file
 
 import Foundation
@@ -9,14 +9,14 @@ import Foundation
 /// A ParNode pattern plus instance of Any, which may be either a String or [ParItem]
 public class ParItem {
 
-    public var node: ParNode?   // reference to parse node
+    public var node: ParNode   // reference to parse node
     public var value: String?    // either value or next, not both to support
     public var nextPars = [ParItem]() // either a String, ParItem, or [ParItem]
 
     public var hops = 0
     var time = TimeInterval(0)
     
-    init (_ node: ParNode!,
+    init (_ node: ParNode,
           _ value: String?,
           _ hops: Int = 0,
           _ time: TimeInterval = 0) {
@@ -27,7 +27,7 @@ public class ParItem {
         self.time = time
     }
 
-    init (_ node: ParNode!,
+    init (_ node: ParNode,
           _ next: [ParItem],
           _ hops: Int = 0,
           _ time: TimeInterval = 0) {
@@ -39,7 +39,7 @@ public class ParItem {
     }
 
    /// Search a strand of nodeAnys for the last node
-    func lastNode() -> ParItem! {
+    func lastNode() -> ParItem? {
         for reversePar in nextPars.reversed() {
             if reversePar.value != nil ||
                 reversePar.nextPars.count > 0 {
@@ -49,11 +49,11 @@ public class ParItem {
         return self
     }
 
-    public func makeScript(flat: Bool=false) -> String {
+    public func makeScript(flat: Bool = false) -> String {
         
         var ret = ""
 
-        if !flat, let node = node {
+        if !flat {
 
             switch node.parOp {
             case .rgx,.quo: break
@@ -65,7 +65,7 @@ public class ParItem {
         }
 
         switch nextPars.count {
-        case 0: ret += (value != nil ? value! : "")
+        case 0: ret += (value ?? "")
         case 1: ret += nextPars[0].makeScript(flat: flat)
         default:
             var del = "("
@@ -84,7 +84,7 @@ public class ParItem {
 
         case let parItem as ParItem:
 
-            print(parItem.makeScript(), terminator:" ")
+            print(parItem.makeScript(), terminator: " ")
 
         case let anys as [Any]:
 
@@ -119,8 +119,7 @@ public class ParItem {
             if let value = nextPar.value {
                 result.append(value)
             }
-            else if let pattern = nextPar.node?.pattern,
-                keys.contains(pattern) {
+            else if keys.contains(nextPar.node.pattern) {
 
                 for nextPari in nextPar.nextPars {
 

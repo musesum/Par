@@ -1,8 +1,8 @@
-//  MuseNLP.swift
+//  TestNLP.swift
 //  ParGraph
 //
 //  Created by warren on 7/3/17.
-//  Copyright © 2017 Muse Dot Company All rights reserved.
+//  Copyright © 2017 DeepMuse All rights reserved.
 
 import Foundation
 import Par
@@ -16,36 +16,33 @@ import Par
 /// - attaches script's eventList() to swift API func eventListChecker(...),
 ///     which is useful for connecting an external databases to the parser
 ///
-public class MuseNLP {
+public class TestNLP {
 
-    public static var shared = MuseNLP()
+    public static var shared = TestNLP()
     public var root: ParNode?
-    let found = MuseFound()
     let parWords = ParWords("") // search for nearest match on tokenized words in parallel
 
     public init() {
-        root = Par.shared.parse(script: MusePar)
+        root = Par.shared.parse(script: TestPar)
     }
 
-    /// Parse string and find match to muse graph
+    /// Parse string and find match to test graph
     /// - parameter str: lowercase string
     /// - returns: -1: not found. 0...n: number of hops from ideal graph
-    
-    public func findMatch(_ str: String) -> MuseFound? {
+    public func findMatch(_ str: String) -> TestFound? {
 
-        if root == nil { return nil }
         let timeNow = Date().timeIntervalSince1970
 
         parWords.update(str, timeNow) // filter words out after shortTermMemory span
-        found.str = str
-        found.parItem = root?.findMatch(parWords, 0).parLast ?? nil
-        found.hops = found.parItem?.totalHops() ?? -1
-        return found
+        if  let parItem = root?.findMatch(parWords, 0).parLast {
+            let hops = parItem.totalHops()
+            return TestFound(str, parItem, hops)
+        }
+        return TestFound("", nil, -1)
     }
+    func parseParItem(_ parItem: ParItem, _ model: TestModel, _ visitor: Visitor) {
 
-    func parseParItem(_ parItem: ParItem, _ model: MuseModel, _ visitor: Visitor) {
-
-        if let node = parItem.node, !visitor.newVisit(node.id) { return }
+        if !visitor.newVisit(parItem.node.id) { return }
 
         if parItem.nextPars.count > 0 {
             for nextPar in parItem.nextPars {

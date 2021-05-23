@@ -1,6 +1,6 @@
- muse ~ ask (show | hide | setting | clear) {
+ test ~ ask (show | hide | setting | clear) {
     
-    ask ~ 'muse' 'please'?
+    ask ~ 'test' 'please'?
     show ~ ('show' | 'reveal') type
     hide ~ ('hide' | 'remove') type
     clear ~ 'clear' type
@@ -22,17 +22,17 @@
     refresh ~ ('refresh' | 'reset') 'screen'?
 }
 
-muse {
+test {
     (show | hide) (calendars | reminders | routine | memos)
     (say | skip) (event | time | memo)
     (hear | mute) (speaker | earbuds)
     preview (memos | routine)
 }
 
-muse show all marks
-muse show "meetings" matching "study group"
-muse set speech on
-muse refresh screen
+test show all marks
+test show "meetings" matching "study group"
+test set speech on
+test refresh screen
 
 menu ~ calendar | reminders | memos | routine | more {
     calendars ~ Calendars.shared.sourceCals()
