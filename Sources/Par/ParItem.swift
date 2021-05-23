@@ -9,7 +9,7 @@ import Foundation
 /// A ParNode pattern plus instance of Any, which may be either a String or [ParItem]
 public class ParItem {
 
-    public var node: ParNode   // reference to parse node
+    public var node: ParNode?   // reference to parse node
     public var value: String?    // either value or next, not both to support
     public var nextPars = [ParItem]() // either a String, ParItem, or [ParItem]
 
@@ -53,7 +53,7 @@ public class ParItem {
         
         var ret = ""
 
-        if !flat {
+        if !flat, let node = node {
 
             switch node.parOp {
             case .rgx,.quo: break
@@ -119,7 +119,8 @@ public class ParItem {
             if let value = nextPar.value {
                 result.append(value)
             }
-            else if keys.contains(nextPar.node.pattern) {
+            else if let pattern = nextPar.node?.pattern,
+                keys.contains(pattern) {
 
                 for nextPari in nextPar.nextPars {
 

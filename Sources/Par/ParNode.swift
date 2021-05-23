@@ -158,8 +158,8 @@ public class ParNode {
 
             //print(parItem.makeScript())
             
-            if let foundParItem = parItem.lastNode() {
-                let foundNode = foundParItem.node
+            if let foundParItem = parItem.lastNode(),
+                let foundNode = foundParItem.node {
                 
                 print("\(foundNode.nodeStrId()) = \(String(describing: matchStr))")
                 foundNode.matchStr = matchStr

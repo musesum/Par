@@ -34,7 +34,7 @@ public class ParMatching {
         if let parItem = parItem {
 
             if parItem.nextPars.isEmpty,
-               parItem.node.reps.repMin == 0 {
+               parItem.node?.reps.repMin == 0 {
 
                 //?? print("-", terminator: "")
             }
@@ -63,7 +63,7 @@ public class ParMatching {
     /// add a parItem to this ParMatching
     func add (_ parItem: ParItem) {
 
-        if !(parItem.node.ignore) {
+        if !(parItem.node?.ignore ?? false) {
             parItems.append(parItem)
         }
     }
@@ -94,9 +94,8 @@ public class ParMatching {
             return matching
 
         case 1:
-            if  let parFirst = parItems.first {
-
-                let parNode = parFirst.node
+            if  let parFirst = parItems.first,
+                let parNode = parFirst.node {
 
                 switch parNode.parOp  {
 
@@ -163,7 +162,7 @@ public class ParMatching {
     /// to  or:(path: show, path: hide, path: setting, path: clear)
 
     func promoteNextPars(_ parItem: ParItem) -> [ParItem]? {
-        if  parItem.node.pattern == "",
+        if  parItem.node?.pattern == "",
             parItem.value == nil {
 
             return parItem.nextPars

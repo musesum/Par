@@ -136,7 +136,7 @@ public class ParWords: ParStr {
           node.reps.repMin >= 1 {
 
             for parItem in parRecents.parItems.reversed() {
-                if  parItem.node.id == node.id,
+                if  let id = parItem.node?.id, id == node.id,
                     let word = parItem.value {
 
                     let deltaTime = time - parItem.time
@@ -195,7 +195,7 @@ public class ParWords: ParStr {
            node.reps.repMin >= 1 {
 
             for parItem in parRecents.parItems.reversed() {
-                if parItem.node.id == node.id {
+                if  let id = parItem.node?.id, id == node.id {
 
                     let deltaTime = time - parItem.time
                     let parItem = advancePar(node, words.count, node.pattern, deltaTime)
@@ -283,7 +283,7 @@ public class ParWords: ParStr {
             node.reps.repMin >= 1 {
 
             for parItem in parRecents.parItems.reversed() {
-                if  parItem.node.id == node.id,
+                if  let id = parItem.node?.id, id == node.id,
                     let word = parItem.value,
                     let regx = node.regx,
                     let _ = matchRegxWord(regx, word) {

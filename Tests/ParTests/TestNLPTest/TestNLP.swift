@@ -42,7 +42,10 @@ public class TestNLP {
     }
     func parseParItem(_ parItem: ParItem, _ model: TestModel, _ visitor: Visitor) {
 
-        if !visitor.newVisit(parItem.node.id) { return }
+        if let node = parItem.node,
+           !visitor.newVisit(node.id) {
+            return
+        }
 
         if parItem.nextPars.count > 0 {
             for nextPar in parItem.nextPars {
