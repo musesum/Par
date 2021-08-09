@@ -120,7 +120,7 @@ public class Par {
         }
         
         func printError(_ msg: String, _ any: Any?) {
-            print("*** unexpected \(msg):", terminator: "")
+            print("🚫 unexpected \(msg):", terminator: "")
             print(any ?? "??")
         }
         
@@ -163,7 +163,7 @@ public class Par {
             parNode.foundCall = foundCall
         }
         else {
-            print("*** \(#function)(\"\(str)\") lost at \"\(parStr.sub)\"")
+            print("🚫 \(#function)(\"\(str)\") lost at \"\(parStr.sub)\"")
         }
     }
     

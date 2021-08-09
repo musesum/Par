@@ -175,7 +175,7 @@ public class ParNode {
             nodeValCall(parItem)
         }
         else {
-            print("*** \(#function)(\"\(parStr.str)\") not found")
+            print("🚫 \(#function)(\"\(parStr.str)\") not found")
         }
     }
 }
