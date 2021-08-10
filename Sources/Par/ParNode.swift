@@ -166,7 +166,7 @@ public class ParNode {
             }
         }
         else {
-            print("failed ***")
+            print("🚫 setMatch couldn't find: \(str)")
         }
     }
     
