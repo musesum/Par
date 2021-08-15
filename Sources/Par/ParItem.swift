@@ -91,7 +91,7 @@ public class ParItem {
             for any in anys {
                 printScript(any)
             }
-        default: print("🚫 printScript unknown \(any)")
+        default: print("🚫 printScript unknown any")
         }
     }
 
