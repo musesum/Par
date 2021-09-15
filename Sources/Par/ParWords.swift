@@ -116,7 +116,7 @@ public class ParWords: ParStr {
         if starti < words.count {
             for index in starti ..< words.count {
                 if let str = match(index) {
-                    let parItem = advancePar(node, index, str) //???
+                    let parItem = advancePar(node, index, str)
                     return ParMatching(parItem, ok: true)
                 }
             }
