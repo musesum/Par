@@ -70,10 +70,10 @@ extension String {
     }
 
     /// add a space if last character is not a space of left paren
-    public func parenSpace() -> String {
+    public func parenSpace(delim: String = "") -> String {
         if last == "(" { return "" }
         if last == " " { return "" }
-        else           { return " "}
+        else           { return delim + " "}
     }
     /// append string to self with spacing
     public mutating func plus(_ add: String?) {
