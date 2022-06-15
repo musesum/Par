@@ -78,6 +78,7 @@ extension String {
     /// append string to self with spacing
     public mutating func plus(_ add: String?) {
         guard let add = add else { return }
+        if add == "" { return }
         if      add  == "," { self = without(trailing: " ") + add }
         else if last == "(" { self += add }
         else if last == " " { self += add }
