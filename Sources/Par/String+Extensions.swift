@@ -76,7 +76,7 @@ extension String {
         else           { return delim + " "}
     }
     /// append string to self with spacing
-    public mutating func append(_ str: String?) {
+    public mutating func spacePlus(_ str: String?) {
         guard let str = str else { return }
         if str == "" { return }
         if      str  == "," { self = without(trailing: " ") + str }
