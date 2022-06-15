@@ -76,13 +76,13 @@ extension String {
         else           { return delim + " "}
     }
     /// append string to self with spacing
-    public mutating func plus(_ add: String?) {
-        guard let add = add else { return }
-        if add == "" { return }
-        if      add  == "," { self = without(trailing: " ") + add }
-        else if last == "(" { self += add }
-        else if last == " " { self += add }
-        else                { self = with(trailing: " ") + add }
+    public mutating func append(_ str: String?) {
+        guard let str = str else { return }
+        if str == "" { return }
+        if      str  == "," { self = without(trailing: " ") + str }
+        else if last == "(" { self += str }
+        else if last == " " { self += str }
+        else                { self = isEmpty ? str : with(trailing: " ") + str }
     }
     /// remove trailing spaces before adding character.
     /// often used to insure a single trailing space, instead of two.
