@@ -102,7 +102,7 @@ public class Par {
         
         /// Apply name to super node
         ///
-        /// par:( name: ask, and:(regex: muse, and:(...)))
+        /// par:( name: ask, and:(regex: muse, and:(…)))
         ///
         func addName(_ pattern: String, _ any: ParItem) {
             if Par.trace2 { print ("`" + pattern, terminator: "` ") }

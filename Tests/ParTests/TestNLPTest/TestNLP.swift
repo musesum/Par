@@ -13,7 +13,7 @@ import Par
 ///
 /// - flexible position of keywords`, with `hops` showing distance from ideal
 /// - optional shortTermMemory in seconds of retaining previous keywords
-/// - attaches script's eventList() to swift API func eventListChecker(...),
+/// - attaches script's eventList() to swift API func eventListChecker(…),
 ///     which is useful for connecting an external databases to the parser
 ///
 public class TestNLP {
@@ -28,7 +28,7 @@ public class TestNLP {
 
     /// Parse string and find match to test graph
     /// - parameter str: lowercase string
-    /// - returns: -1: not found. 0...n: number of hops from ideal graph
+    /// - returns: -1: not found. 0…n: number of hops from ideal graph
     public func findMatch(_ str: String) -> TestFound? {
 
         let timeNow = Date().timeIntervalSince1970

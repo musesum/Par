@@ -40,7 +40,7 @@ final class ParTests: XCTestCase {
         print("\n------------------------------------")
         var err = 0 // error count
         //let _ = testParse(Bug1Par) //🚫bug! single rvalue `ask`
-        //let _ = testParse(Bug2Par) //🚫bug! double ((...) ...)
+        //let _ = testParse(Bug2Par) //🚫bug! double ((…) …)
         
         err += testParse(Namespace1Par)
         err += testParse(Namespace2Par)

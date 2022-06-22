@@ -18,7 +18,7 @@ ask ~ "test" ("please" | "yo")?
 }
 """#
 
-let Bug2Par =  // 🚫bug! double ((...) ...)
+let Bug2Par =  // 🚫bug! double ((…) …)
 #"""
  a ~ b ((c | d) | e) {
     b ~ "bb"
