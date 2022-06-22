@@ -162,7 +162,7 @@ tr3 ~ left right* {
     value1 ~ scalar1 | tuple | quote
     scalar ~ "(" scalar1 ")"
     scalar1 ~ thru | modu | incr | decr | data | dflt {
-        thru ~ min ".." max eqDflt?
+        thru ~ min "..." max eqDflt?
         modu ~ "%" max eqDflt?
         incr ~ "++"
         decr ~ "--"
