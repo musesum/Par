@@ -77,7 +77,7 @@ extension String {
     }
     /// append string to self with spacing
     public mutating func spacePlus(_ str: String?) {
-        guard let str = str else { return }
+        guard let str else { return }
         if str == "" { return }
         if      str  == "," { self = without(trailing: " ") + str }
         else if last == "(" { self += str }
