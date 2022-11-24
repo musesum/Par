@@ -95,7 +95,7 @@ extension String {
     /// often used to insure a single trailing space, instead of two.
     public func without(trailing: String) -> String {
         var trim = self
-        while trim.last == " " { trim.removeLast() }
+        while let last = trim.last, trailing.contains(last) { trim.removeLast() }
         return trim 
     }
 
