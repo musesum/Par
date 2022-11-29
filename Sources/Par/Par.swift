@@ -178,7 +178,7 @@ public class Par {
                                             ParNode("name", [
                                                         ParNode(#"'^([A-Za-z_]\w*)'"#)]),
                                             
-                                            ParNode("\"~\""),
+                                            ParNode("\"≈\""),
                                             
                                             ParNode("right+|", [
                                                         

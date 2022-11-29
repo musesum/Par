@@ -11,61 +11,57 @@ import Foundation
 
 public let Tr3Par =
 #"""
-tr3 ~ left right* {
+tr3 ≈ left right* {
 
-    left ~ comment* pathName proto?
-    proto ~ "*" pathName
-    pathName ~ path | name
+    left ≈ (path | name)
+    right ≈ (hash | time | value | child | many | copyat | array | edges | embed | comment)+
 
-    right ~ value | child | array | edges | embed | comment
-    child ~ "{" tr3+ "}" many?
-    many ~ "." child
+    hash ≈ "#" num
+    time ≈ "~" num
+    child ≈ "{" comment* tr3+ "}" | "." tr3+
+    many ≈ "." "{" tr3+ "}"
+    array ≈ "[" thru "]"
+    copyat ≈ "@" (path | name) ("," (path | name))*
 
-    value ~ scalar | tuple | quote
-    scalar ~ "(" scalar1 ")"
-    scalar1 ~ thru | modu | incr | decr | data | dflt {
-        thru ~ min ":" max eqDflt?
-        modu ~ "%" max eqDflt?
-        incr ~ "++"
-        decr ~ "--"
-        data ~ "*"
-        min ~ num
-        max ~ num
-        dflt ~ num
-        eqDflt ~ "=" dflt
+    value ≈ scalar | exprs
+    value1 ≈ scalar1 | exprs
+
+    scalar ≈ "(" scalar1 ")"
+    scalars ≈ "(" scalar1 ("," scalar1)* ")"
+    scalar1 ≈ (thru | modu | data | num) {
+        thru ≈ num ("..." | "…") num dflt? now?
+        modu ≈ "%" num dflt? now?
+        index ≈ "[" (name | num) "]"
+        data ≈ "*"
+        dflt ≈ "=" num
+        now ≈ ":" num
     }
-    tuple ~ "(" tupVal ")" {
-        names ~ name{2,}
-        nums ~ num{2,}
-        nameNum ~ name num
-        nameNums ~ nameNum nameNum*
-        tupVal ~ nameNums | names | nums
+    exprs ≈ "(" expr+ ("," expr+)* ")" {
+        expr ≈ (exprOp | name | scalars | scalar1 | quote)
+        exprOp ≈ '^(<=|>=|==|<|>|\*|_\/|\/|\%|\:|in|\,)|(\+)|(\-)[ ]'
     }
-    edges ~ edgeOp edgeItem comment* {
+    edges ≈ edgeOp (edgePar | exprs | edgeItem) comment* {
 
-        edgeOp ~ '^([<][<sx?!\╌>]+|[sx?!>]+[>])'
-        edgeItem ~ edgeValTern comment*
-        edgeVal ~ pathName value?
-        edgeValTern ~ edgeVal | ternary
-        pathNameVal ~ pathName | value
-        ternPathNameVal ~ ternary | pathNameVal
+        edgeOp ≈ '^([<←][<!@⟐⟡◇→>]+|[!@⟐⟡◇→>]+[>→])'
+        edgePar ≈ "(" edgeItem+ ")" edges?
+        edgeItem ≈ (edgeVal | ternary) comment*
+        edgeVal ≈ (path | name) (edges+ | value)?
 
-        ternary ~ "(" tern ")" {
-            tern ~ ternIf ternThen ternElse? ternRadio?
-            ternIf ~ pathName ternCompare?
-            ternThen ~ "?" ternPathNameVal
-            ternElse ~ ":" ternPathNameVal
-            ternRadio ~ "|" ternary
-            ternCompare ~ compare pathNameVal
+        ternary ≈ "(" tern ")" | tern {
+            tern ≈ ternIf ternThen ternElse? ternRadio?
+            ternIf ≈ (path | name) ternCompare?
+            ternThen ≈ "?" (ternary | path | name | value1)
+            ternElse ≈ ":" (ternary | path | name | value1)
+            ternCompare ≈ compare (path | name | value1)
+            ternRadio ≈ "|" ternary
         }
     }
-    path ~ '^((([A-Za-z_][A-Za-z0-9_]*)*([.˚*])+([A-Za-z_][A-Za-z0-9_.˚*]*)*)+)'
-    name ~ '^([A-Za-z_][A-Za-z0-9_]*)'
-    quote ~ '^\"([^\"]*)\"'
-    num ~ '^([+-]*([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+[.](?![.])|[0-9]+)([e][+-][0-9]+)?)'
-    array ~ '^\:?\[[ ]*([0-9]+)[ ]*\]'
-    comment ~ '^[/][/][ ]*((.*?)[\r\n]+|^[ \r\n\t]+)'
-    compare ~ '^[<>!=][=]?'
-    embed ~ '^[{][{](?s)(.*?)[}][}]'
+    path ≈ '^(([A-Za-z_][A-Za-z0-9_]*)?[.º˚*]+[A-Za-z0-9_.º˚*]*)'
+    name ≈ '^([A-Za-z_][A-Za-z0-9_]*)'
+    quote ≈ '^\"([^\"]*)\"'
+    num ≈ '^([+-]*([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+[.](?![.])|[0-9]+)([e][+-][0-9]+)?)'
+    comment ≈ '^([,]+|^[/]{2,}[ ]*(.*?)[\n\r\t]+|\/[*]+.*?\*\/)'
+    compare ≈ '^[<>!=][=]?'
+    embed ≈ '^[{][{](?s)(.*?)[}][}]'
 }
 """#

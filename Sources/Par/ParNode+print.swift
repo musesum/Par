@@ -41,9 +41,9 @@ public extension ParNode {
     /// Text representation of node and its unique ID. Used in graph dump, which includes before and after edges.
     func nodeOpId() -> String {
 
-        let opStr =  ( pattern=="" ? parOp.rawValue :
-            parOp == .or    ? "|"   :
-            parOp == .match  ? "()" : ".")
+        let opStr =  (pattern == ""     ? parOp.rawValue :
+                        parOp == .or    ? "|" :
+                        parOp == .match ? "()" : ".")
 
         let repStr = (reps.count == .one ? "" : reps.makeScript()) + (reps.surf ? "~" : "")
 
@@ -150,14 +150,14 @@ public extension ParNode {
         
         // ────────────── begin ──────────────
 
-        // test for a ~ b | c | d
+        // test for a ≈ b | c | d
         var onlyOrs = true
         testOrs: for edgeNext in edgeNexts {
             switch edgeNext.nodeNext?.parOp {
                 case .or, .def:
                     continue
                 default:
-                // otherwise a ~ b (c | d)
+                // otherwise a ≈ b (c | d)
                 onlyOrs = false
                 break testOrs
             }
@@ -187,7 +187,7 @@ public extension ParNode {
 
         var str = "" // return value
 
-        if isName { str += pad(level) + makeScript(isLeft: true) + " ~ " }
+        if isName { str += pad(level) + makeScript(isLeft: true) + " ≈ " }
         else      { str +=              makeScript(isLeft: false)  }
         
         str += makeSuffixs(level)

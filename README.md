@@ -122,25 +122,25 @@ Output from ParTests/TestNLP+Test.swift:
 Here is the Par definition in the Par format:
 
 ```swift
-par ~ name "~" right+ sub? end_ {
-    name ~ '^[A-Za-z_]\w*'
-    right ~ or_ | and_ | paren {
-        or_ ~ and_ orAnd+ {
-            orAnd ~ "|" and_
+par ≈ name "≈" right+ sub? end_ {
+    name ≈ '^[A-Za-z_]\w*'
+    right ≈ or_ | and_ | paren {
+        or_ ≈ and_ orAnd+ {
+            orAnd ≈ "|" and_
         }
-        and_ ~ leaf reps? {
-            leaf ~ match | path | quote | regex {
-            match ~ '^([A-Za-z_]\w*)\(\)'
-            path ~ '^[A-Za-z_][A-Za-z0-9_.]*'
-            quote ~ '^\"([^\"]*)\"' // skip  \"
-            regex ~ '^([i_]*\'[^\']+)'
+        and_ ≈ leaf reps? {
+            leaf ≈ match | path | quote | regex {
+            match ≈ '^([A-Za-z_]\w*)\(\)'
+            path ≈ '^[A-Za-z_][A-Za-z0-9_.]*'
+            quote ≈ '^\"([^\"]*)\"' // skip  \"
+            regex ≈ '^([i_]*\'[^\']+)'
             }
         }
-        parens ~ "(" right ")" reps
+        parens ≈ "(" right ")" reps
     }
-    sub ~ "{" end_ par "}" end_?
-    end_ ~ '[ \\n\\t,]*'
-    reps ~ '^([\~]?([\?\+\*]|\{],]?\d+[,]?\d*\})[\~]?)'
+    sub ≈ "{" end_ par "}" end_?
+    end_ ≈ '[ \\n\\t,]*'
+    reps ≈ '^([\~]?([\?\+\*]|\{],]?\d+[,]?\d*\})[\~]?)'
 }
 ```
 Here is a complete Par definition for the functional data flow graph, called Tr3: 
@@ -148,60 +148,56 @@ Here is a complete Par definition for the functional data flow graph, called Tr3
 ```swift
 tr3 ~ left right* {
 
-    left ~ (path | name | quote) 
+    left ≈ (path | name)
+    right ≈ (hash | time | value | child | many | copyat | array | edges | embed | comment)+
 
-    right ~ (tr3Val | child | many | copyat | array | edges | embed | comment)+
+    hash ≈ "#" num
+    time ≈ "~" num
+    child ≈ "{" comment* tr3+ "}" | "." tr3+
+    many ≈ "." "{" tr3+ "}"
+    array ≈ "[" thru "]"
+    copyat ≈ "@" (path | name) ("," (path | name))*
 
-    tr3Val ~ value
-    child ~ "{" comment* tr3+ "}"
-    many ~ "." "{" tr3+ "}"
-    copyat ~ "@" (path | name)
-    array ~ "[" thru "]"
+    value ≈ scalar | exprs
+    value1 ≈ scalar1 | exprs
 
-    value ~ scalar | tuple | quote
-    value1 ~ scalar1 | tuple | quote
-    scalar ~ "(" scalar1 ")"
-    scalar1 ~ thru | modu | incr | decr | data | dflt {
-        thru ~ min ("..." | "…") max eqDflt?
-        modu ~ "%" max eqDflt?
-        incr ~ "++"
-        decr ~ "--"
-        data ~ "*"
-        min ~ num
-        max ~ num
-        dflt ~ num
-        eqDflt ~ "=" dflt
+    scalar ≈ "(" scalar1 ")"
+    scalars ≈ "(" scalar1 ("," scalar1)* ")"
+    scalar1 ≈ (thru | modu | data | num) {
+        thru ≈ num ("..." | "…") num dflt? now?
+        modu ≈ "%" num dflt? now?
+        index ≈ "[" (name | num) "]"
+        data ≈ "*"
+        dflt ≈ "=" num
+        now ≈ ":" num
     }
-    tuple ~ "(" tupVal ")" {
-        names ~ name (","? name)+
-        scalars ~ scalar1 (","? scalar1)+
-        nameScalars ~ name scalar1 (","? name scalar1)*
-        tupVal ~ nameScalars | names | scalars
+    exprs ≈ "(" expr+ ("," expr+)* ")" {
+        expr ≈ (exprOp | name | scalars | scalar1 | quote)
+        exprOp ≈ '^(<=|>=|==|<|>|\*|_\/|\/|\%|\:|in|\,)|(\+)|(\-)[ ]'
     }
-    edges ~ edgeOp (edgePar | edgeItem) comment* {
+    edges ≈ edgeOp (edgePar | exprs | edgeItem) comment* {
 
-        edgeOp ~ '^([<][<⋯!@&\=\╌>]+|[⋯!@&\=\╌>]+[>])'
-        edgePar ~ "(" edgeItem+ ")" edges?
-        edgeItem ~ (edgeVal | ternary) comment*
+        edgeOp ≈ '^([<←][<!@⟐⟡◇→>]+|[!@⟐⟡◇→>]+[>→])'
+        edgePar ≈ "(" edgeItem+ ")" edges?
+        edgeItem ≈ (edgeVal | ternary) comment*
+        edgeVal ≈ (path | name) (edges+ | value)?
 
-        edgeVal ~ (path | name) (edges+ | value)?
-
-        ternary ~ "(" tern ")" | tern {
-            tern ~ ternIf ternThen ternElse? ternRadio?
-            ternIf ~ (path | name) ternCompare?
-            ternThen ~ "?" (ternary | path | name | value1)
-            ternElse ~ ":" (ternary | path | name | value1)
-            ternCompare ~ compare (path | name | value1)
-            ternRadio ~ "|" ternary
+        ternary ≈ "(" tern ")" | tern {
+            tern ≈ ternIf ternThen ternElse? ternRadio?
+            ternIf ≈ (path | name) ternCompare?
+            ternThen ≈ "?" (ternary | path | name | value1)
+            ternElse ≈ ":" (ternary | path | name | value1)
+            ternCompare ≈ compare (path | name | value1)
+            ternRadio ≈ "|" ternary
         }
     }
-    path ~ '^(([A-Za-z_][A-Za-z0-9_]*)?[.º˚*]+[A-Za-z0-9_.º˚*]*)'
-    name ~ '^([A-Za-z_][A-Za-z0-9_]*)'
-    quote ~ '^\"([^\"]*)\"'
-    num ~ '^([+-]*([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+[.](?![.])|[0-9]+)([e][+-][0-9]+)?)'
-    comment ~ '^([,]+|^[/]{2,}[ ]*(.*?)[\n\r\t]+|\/\/|\/[*]+.*?\*\/)'
-    compare ~ '^[<>!=][=]?'
-    embed ~ '^[{][{](?s)(.*?)[}][}]'
+    path ≈ '^(([A-Za-z_][A-Za-z0-9_]*)?[.º˚*]+[A-Za-z0-9_.º˚*]*)'
+    name ≈ '^([A-Za-z_][A-Za-z0-9_]*)'
+    quote ≈ '^\"([^\"]*)\"'
+    num ≈ '^([+-]*([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+[.](?![.])|[0-9]+)([e][+-][0-9]+)?)'
+    comment ≈ '^([,]+|^[/]{2,}[ ]*(.*?)[\n\r\t]+|\/[*]+.*?\*\/)'
+    compare ≈ '^[<>!=][=]?'
+    embed ≈ '^[{][{](?s)(.*?)[}][}]'
 }
 """#
 
