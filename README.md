@@ -32,33 +32,33 @@ allow short term memory (STM)
 
 Here is the ubiquitous Hello World
 ```swift
-greeting ~ "hello" "world"
+greeting ≈ "hello" "world"
 ```
 
 namespace `{ }` brackets limits the symbols `hello` and `world` to `greeting`.
 ```swift
-greeting ~ hello world {
-     hello ~ "hello"
-     world ~ "world"
+greeting ≈ hello world {
+     hello ≈ "hello"
+     world ≈ "world"
 }
 ```
 double quotes match strings, while
 single quotes match regular expressions:
 ```swift
-year ~ '(19|20)[0-9][0-9]'
-digits ~ '[0-9]{1, 5}'
+year ≈ '(19|20)[0-9][0-9]'
+digits ≈ '[0-9]{1, 5}'
 ```
 
 Alternation and repetitions are supported
 ```c
-greetings ~ cough{, 3} (hello | yo+) (big | beautiful)* world?
+greetings ≈ cough{, 3} (hello | yo+) (big | beautiful)* world?
 ```
 
 #### Closures for Runtime APIs
 
 in the file test.par is the line
 ```swift
-events ~ 'event' eventList()
+events ≈ 'event' eventList()
 ```
 
 whereupon the source in TestNLP+test.swift, attaches to eventList()
@@ -146,7 +146,7 @@ par ≈ name "≈" right+ sub? end_ {
 Here is a complete Par definition for the functional data flow graph, called Tr3: 
 
 ```swift
-tr3 ~ left right* {
+tr3 ≈ left right* {
 
     left ≈ (path | name)
     right ≈ (hash | time | value | child | many | copyat | array | edges | embed | comment)+
