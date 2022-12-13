@@ -26,11 +26,11 @@ extension String {
     func substring(from: Int) -> String {
         return self[min(from, count) ..< count]
     }
-
+    
     func substring(from: Int, to: Int) -> String {
         return self[min(from, count) ..< min(to, count)]
     }
-
+    
     func substring(to: Int) -> String {
         return self[0 ..< max(0, to)]
     }
@@ -45,30 +45,30 @@ extension String {
     /// split "a~b" into "a","~","b"
     ///
     public func splitWild(_ wild: String) -> (String, String, String) {
-
+        
         var prefix    = "" // a in a~b
         var wildcard  = "" // ~ in a~b
         var suffix    = "" // b in a~b
-
+        
         // get non wildcard chars for prefix
         var i = 0
         while i < count, !wild.contains(self[i]) { i += 1 }
         if i > 0 {  prefix = self[0 ..< i] }
-
+        
         // get wildcard chars for wildcard
         var j = i
         while j < count, wild.contains(self[j]) { j += 1 }
         if j > i { wildcard = self[i ..< j] }
-
+        
         // get remaining chars for extra
         if count > j { suffix = self[j ..< count] }
-
+        
         return (prefix, wildcard, suffix)
     }
     func matches(pre prefix: String, suf suffix: String) -> Bool {
         return hasPrefix(prefix) && hasSuffix(suffix)
     }
-
+    
     /// add a space if last character is not a space of left paren
     public func parenSpace(delim: String = "") -> String {
         if last == "(" { return "" }
@@ -98,8 +98,8 @@ extension String {
         while let last = trim.last, trailing.contains(last) { trim.removeLast() }
         return trim 
     }
-
-
+    
+    
     static public func * (lhs: String, rhs: Int) -> String {
         var str = ""
         for _ in 0 ..< rhs {
@@ -108,4 +108,12 @@ extension String {
         return str
     }
     
+    public func strHash() -> Int {
+        var result = Int (5381)
+        let buf = [UInt8](self.utf8)
+        for b in buf {
+            result = 127 * (result & 0x00ffffffffffffff) + Int(b)
+        }
+        return result
+    }
 }
