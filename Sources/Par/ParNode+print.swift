@@ -10,34 +10,32 @@ public extension ParNode {
     
     func printGraph(_ visitor: Visitor, _ level: Int = 0) {
         
-        // deja vu? stop when revisiting same node
-        if visitor.visited.contains(id) { return }
-        visitor.visited.insert(id)
-        
-        var left = "⦙ " + " ".padding(toLength: level, withPad: " ", startingAt: 0)
-        for edgePrev in edgePrevs {
-            if let nodePrev = edgePrev.nodePrev {
-                left += nodePrev.nodeOpId() + " "
-            }
-        }
-        left = left.padding(toLength: 32, withPad: " ", startingAt: 0)
+        if visitor.newVisit(id) {
 
-        let center = (nodeOpId()+" ").padding(toLength: 24, withPad: " ", startingAt: 0)
-        
-        var right = ""
-        for edgeNext in edgeNexts {
-            if let nodeNext = edgeNext.nodeNext {
-                right += nodeNext.nodeOpId() + " "
+            var left = "⦙ " + " ".padding(toLength: level, withPad: " ", startingAt: 0)
+            for edgePrev in edgePrevs {
+                if let nodePrev = edgePrev.nodePrev {
+                    left += nodePrev.nodeOpId() + " "
+                }
             }
-        }
-        
-        print (left + center + right)
-        
-        for edgeNext in edgeNexts {
-            edgeNext.nodeNext?.printGraph(visitor, level+1)
+            left = left.padding(toLength: 32, withPad: " ", startingAt: 0)
+
+            let center = (nodeOpId()+" ").padding(toLength: 24, withPad: " ", startingAt: 0)
+
+            var right = ""
+            for edgeNext in edgeNexts {
+                if let nodeNext = edgeNext.nodeNext {
+                    right += nodeNext.nodeOpId() + " "
+                }
+            }
+
+            print (left + center + right)
+
+            for edgeNext in edgeNexts {
+                edgeNext.nodeNext?.printGraph(visitor, level+1)
+            }
         }
     }
-    
     /// Text representation of node and its unique ID. Used in graph dump, which includes before and after edges.
     func nodeOpId() -> String {
 
