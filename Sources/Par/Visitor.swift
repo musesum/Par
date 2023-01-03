@@ -12,7 +12,6 @@ public class Visitor {
     static var Id = 0  // unique identifier for each node
     public static func nextId() -> Int { Id += 1; return Id }
     var lock = NSLock()
-    
     private var visited = Set<Int>()
 
     public init (_ id: Int) {
@@ -20,27 +19,32 @@ public class Visitor {
     }
     public init (fromRemote: Bool = false) {
         if fromRemote {
-            visited.insert("remote".hash)
+            nowHere("remote".hash)
         }
     }
     public func wasRemote() -> Bool {
-        return visited.contains("remote".hash)
+        return wasHere("remote".hash)
+    }
+    private func nowHere(_ id: Int) {
+        lock.lock()
+        visited.insert(id)
+        lock.unlock()
     }
     public func wasHere(_ id: Int) -> Bool {
-        return visited.contains(id)
+        lock.lock()
+        let contains = visited.contains(id)
+        lock.unlock()
+        return contains
     }
     public func isLocal() -> Bool {
         return !wasRemote()
     }
 
     public func newVisit(_ id: Int) -> Bool {
-        
-        if visited.contains(id) {
+        if wasHere(id) {
             return false
         } else {
-            lock.lock()
-            visited.insert(id)
-            lock.unlock()
+            nowHere(id)
             return true
         }
     }
