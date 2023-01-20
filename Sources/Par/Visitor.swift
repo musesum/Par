@@ -8,19 +8,21 @@ public class Visitor {
 
     static var Id = 0  // unique identifier for each node
     public static func nextId() -> Int { Id += 1; return Id }
-    var lock = NSLock()
+    static let FromRemote = "__VisitorFromRemote__".hash
+
+    private var lock = NSLock()
     private var visited = Set<Int>()
 
     public init (_ id: Int) {
-        visited.insert(id)
+        nowHere(id)
     }
     public init (fromRemote: Bool = false) {
         if fromRemote {
-            nowHere("remote".hash)
+            nowHere(Visitor.FromRemote)
         }
     }
     public func wasRemote() -> Bool {
-        return wasHere("remote".hash)
+        return wasHere(Visitor.FromRemote)
     }
     private func nowHere(_ id: Int) {
         lock.lock()
