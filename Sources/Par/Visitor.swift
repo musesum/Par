@@ -48,6 +48,10 @@ public struct VisitFrom: OptionSet {
     public var midi    : Bool { self.contains(.midi   ) }
     public var animate : Bool { self.contains(.animate) }
     public var canvas  : Bool { self.contains(.animate) }
+
+    public static func + (lhs: VisitFrom, rhs: VisitFrom) -> VisitFrom {
+        return VisitFrom(rawValue: lhs.rawValue & rhs.rawValue)
+    }
 }
 
 /// Visit a node only once. Collect and compare with a set of nodes already visited.
@@ -97,7 +101,9 @@ public class Visitor {
         return self
     }
     public var log: String {
+        lock.lock()
         let visits = visited.map { String($0)}.joined(separator: ",")
+        lock.unlock()
         return "\(from.log):(\(visits))"
     }
 }
