@@ -42,12 +42,12 @@ public struct VisitFrom: OptionSet {
         let joined = result.joined(separator: "")
        return joined
     }
-    public var remote  : Bool { self.contains(.remote ) }
-    public var user    : Bool { self.contains(.user   ) }
-    public var model   : Bool { self.contains(.model  ) }
-    public var midi    : Bool { self.contains(.midi   ) }
-    public var animate : Bool { self.contains(.animate) }
-    public var canvas  : Bool { self.contains(.animate) }
+    public var remote  : Bool { contains(.remote ) }
+    public var user    : Bool { contains(.user   ) }
+    public var model   : Bool { contains(.model  ) }
+    public var midi    : Bool { contains(.midi   ) }
+    public var animate : Bool { contains(.animate) }
+    public var canvas  : Bool { contains(.animate) }
 
     public static func + (lhs: VisitFrom, rhs: VisitFrom) -> VisitFrom {
         return VisitFrom(rawValue: lhs.rawValue & rhs.rawValue)
@@ -85,7 +85,7 @@ public class Visitor {
         return contains
     }
     public func isLocal() -> Bool {
-        return !from.contains(.remote)
+        return !from.remote
     }
 
     public func newVisit(_ id: Int) -> Bool {
